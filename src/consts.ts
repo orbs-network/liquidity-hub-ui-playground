@@ -1,0 +1,5 @@
+
+export enum QUERY_KEYS {
+  TOKEN_BALANCE = "TOKEN_BALANCE",
+  GET_TOKENS = "GET_TOKENS",
+}
