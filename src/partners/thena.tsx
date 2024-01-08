@@ -6,16 +6,15 @@ import {
   USD,
   Logo,
   NumericInputProps,
-  Spinner,
   Text,
   TokenModal,
+  SwapSubmitButton,
 } from "../components";
 import { FlexColumn, FlexRow } from "../styles";
 import { TokenPanelProps } from "../type";
 import {
   useFromTokenBalance,
   useOnPercentClickCallback,
-  useSubmitButton,
   useToAmount,
   useToTokenBalance,
 } from "../hooks";
@@ -51,11 +50,7 @@ const Card = ({
   children: ReactNode;
   className?: string;
 }) => {
-  return (
-    <StyledCard className={className}>
-      {children}
-    </StyledCard>
-  );
+  return <StyledCard className={className}>{children}</StyledCard>;
 };
 
 const CardContent = ({
@@ -73,7 +68,6 @@ const CardContent = ({
     </StyledCardContent>
   );
 };
-
 
 Card.Content = CardContent;
 
@@ -94,7 +88,35 @@ const StyledTokenSelect = styled(FlexRow)<{ $selected: boolean }>`
   color: white;
 `;
 
-export const TokenSelect = ({
+const StyledPercentButtons = styled(FlexRow)`
+  gap: 20px;
+  margin-left: auto;
+  button {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 10px;
+
+    border: unset;
+    color: ${({ theme }) => theme.colors.textMain};
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+`;
+
+const PercentButtons = () => {
+  const onClick = useOnPercentClickCallback();
+
+  return (
+    <StyledPercentButtons>
+      <button onClick={() => onClick(0.25)}>25%</button>
+      <button onClick={() => onClick(0.5)}>50%</button>
+      <button onClick={() => onClick(0.75)}>75%</button>
+      <button onClick={() => onClick(1)}>Max</button>
+    </StyledPercentButtons>
+  );
+};
+
+const TokenSelect = ({
   symbol,
   logoUrl,
   onClick,
@@ -166,20 +188,11 @@ const Bottom = ({ usd, balance }: { usd: ReactNode; balance: ReactNode }) => {
   );
 };
 
-const StyledSubmitButton = styled.button<{ $disabled?: boolean }>`
-  pointer-events: ${({ $disabled }) => ($disabled ? "none" : "unset")};
-  background: ${({ $disabled, theme }) =>
-    $disabled ? "#65547E" : theme.colors.button};
+const StyledSubmitButton = styled(SwapSubmitButton)`
   min-height: 48px;
   border-radius: 2px;
-  font-size: 16px;
-  width: 100%;
-  border: unset;
-  color: ${({ $disabled }) => ($disabled ? "rgb(9 3 51)" : "white")};
   font-weight: 600;
   margin-top: 20px;
-  cursor: ${({ $disabled }) => ($disabled ? "unset" : "pointer")};
-  position: relative;
 `;
 
 const StyledCard = styled.div`
@@ -208,20 +221,6 @@ const StyledTokenPanel = styled(FlexColumn)`
   gap: 10px;
 `;
 
-const SubmitButton = () => {
-  const { disabled, text, onClick, isLoading } = useSubmitButton();
-
-  return (
-    <StyledSubmitButton
-      $disabled={disabled}
-      onClick={onClick ? () => onClick() : () => {}}
-    >
-      <p style={{ opacity: isLoading ? 0 : 1 }}>{text}</p>
-      {isLoading ? <Spinner  /> : null}
-    </StyledSubmitButton>
-  );
-};
-
 export const Thena = () => {
   return (
     <Container>
@@ -232,7 +231,7 @@ export const Thena = () => {
             <ChangeTokens />
             <ToTokenPanel />
           </FlexColumn>
-          <SubmitButton />
+          <StyledSubmitButton />
         </Card.Content>
       </Card>
     </Container>
@@ -244,23 +243,23 @@ const TokenPanel = ({
   onSelectToken,
   usd,
   balance,
-  label,
+  label = "",
   onInputChange,
-  inputDisabled,
   inputValue,
+  isSrc,
 }: TokenPanelProps) => {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <StyledTokenPanel>
-        <StyledTokenPanelLabel>{label}</StyledTokenPanelLabel>
+        <TokenPanelHeader label={label} element={isSrc && <PercentButtons />} />
         <Card>
           <CardContent background="rgb(9 3 51)">
             <FlexRow style={{ width: "100%" }}>
               <TokenInput
                 onChange={onInputChange}
-                disabled={inputDisabled}
+                disabled={!isSrc}
                 value={inputValue}
               />
               <TokenSelect
@@ -286,11 +285,29 @@ const TokenPanel = ({
   );
 };
 
+const TokenPanelHeader = ({
+  label,
+  element,
+}: {
+  label: string;
+  element: ReactNode;
+}) => {
+  return (
+    <StyledTokenPanelHeader>
+      <StyledTokenPanelLabel>{label}</StyledTokenPanelLabel>
+      {element}
+    </StyledTokenPanelHeader>
+  );
+};
+
+const StyledTokenPanelHeader = styled(FlexRow)`
+    width: 100%;
+`
+
 const FromTokenPanel = () => {
   const { onFromAmountChange, onFromTokenChange, fromAmount, fromToken } =
     useSwapStore();
   const { data: balance } = useFromTokenBalance();
-  const onPercentClick = useOnPercentClickCallback();
 
   return (
     <TokenPanel
@@ -298,10 +315,10 @@ const FromTokenPanel = () => {
       usd=""
       balance={balance}
       onSelectToken={onFromTokenChange}
-      onPercentClick={onPercentClick}
       inputValue={fromAmount}
       onInputChange={onFromAmountChange}
       label="From"
+      isSrc={true}
     />
   );
 };
@@ -318,7 +335,6 @@ const ToTokenPanel = () => {
       balance={balance}
       onSelectToken={onToTokenChange}
       inputValue={toAmount}
-      inputDisabled={true}
       label="To"
     />
   );

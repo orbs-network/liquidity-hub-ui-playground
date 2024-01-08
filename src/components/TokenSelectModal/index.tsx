@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { useBalances, useFormatNumber, useTokens } from "../../hooks";
 import {
   PerstistdStoreToken,
@@ -17,14 +17,16 @@ import { Logo } from "../Logo";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from "react-window";
 import { Token } from "../../type";
-import { FlexRow } from "../../styles";
+import {
+  FlexRow,
+  StyledModalBody,
+  StyledModalCloseButton,
+  StyledModalContent,
+  StyledModalHeader,
+} from "../../styles";
 import {
   Modal,
   ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton,
-  ModalHeader,
   IconButton,
   Fade,
   Skeleton,
@@ -127,7 +129,7 @@ const Row = (props: any) => {
 
 const StyledBalance = styled(Text)`
   font-size: 14px;
-`
+`;
 
 export function TokenModal({
   open,
@@ -143,7 +145,6 @@ export function TokenModal({
   const [view, setView] = useState(TokenListView.DEFAULT);
   const addToken = usePersistedStore((store) => store.addToken);
   const chainId = useNetwork().chain?.id;
-  const theme = useTheme();
   const onAddToken = (token: PerstistdStoreToken) => {
     setView(TokenListView.DEFAULT);
     addToken(chainId!, token);
@@ -158,16 +159,12 @@ export function TokenModal({
     return { tokens: filteredTokens, onClose, onTokenSelect };
   }, [filteredTokens, onClose, onTokenSelect]);
 
-  const modalBG = theme?.colors.modalBackground;
-
   return (
     <Modal onClose={onClose} isOpen={open}>
       <ModalOverlay />
-      <ModalContent background={modalBG}>
-        <ModalHeader background={modalBG} color="white">
-          Select a token
-        </ModalHeader>
-        <ModalBody background={modalBG} padding="0px">
+      <StyledModalContent>
+        <StyledModalHeader color="white">Select a token</StyledModalHeader>
+        <StyledModalBody padding="0px">
           <StyledContent>
             {view === TokenListView.DEFAULT && (
               <StyledTop>
@@ -205,7 +202,7 @@ export function TokenModal({
                 icon={<ArrowBackIcon />}
               />
             )}
-            <ModalCloseButton color="white" />
+            <StyledModalCloseButton />
 
             {view === TokenListView.ADD_TOKEN && (
               <FadeContainer>
@@ -237,8 +234,8 @@ export function TokenModal({
               </FadeContainer>
             )}
           </StyledContent>
-        </ModalBody>
-      </ModalContent>
+        </StyledModalBody>
+      </StyledModalContent>
     </Modal>
   );
 }

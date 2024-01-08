@@ -14,12 +14,7 @@ import axios from "axios";
 import { Token } from "./type";
 import { useNumericFormat } from "react-number-format";
 
-import {
-  useAccount,
-  useConfig,
-  useSwitchNetwork,
-  useNetwork,
-} from "wagmi";
+import { useAccount, useConfig, useSwitchNetwork, useNetwork } from "wagmi";
 import {
   zeroAddress,
   isNativeAddress,
@@ -28,12 +23,12 @@ import {
   web3,
 } from "@defi.org/web3-candies";
 import _ from "lodash";
-import {useLHSwap} from "@orbs-network/liquidity-hub-lib";
-import { QUERY_KEYS } from "./consts";
+import { useLHSwap } from "@orbs-network/liquidity-hub-lib";
+import { DEFAULT_API_URL, DEFAULT_SLIPPAGE, QUERY_KEYS } from "./consts";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
 import { partners } from "./config";
-
+import { NumberParam, StringParam, useQueryParams } from "use-query-params";
 
 export const useToAmount = () => {
   const { quote } = useLHSwapWithArgs();
@@ -63,13 +58,11 @@ export const useTokens = () => {
         return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
       });
 
-      
-
       return partner?.tokenListModifier
         ? partner.tokenListModifier(tokens)
         : tokens;
     },
-  queryKey: [QUERY_KEYS.GET_TOKENS, partner?.tokenListUrl],
+    queryKey: [QUERY_KEYS.GET_TOKENS, partner?.tokenListUrl],
   });
 };
 
@@ -104,15 +97,15 @@ export const useTokenContract = (token?: Token) => {
 };
 
 export const useTokenBalance = (token?: Token) => {
-  
   const tokenContract = useTokenContract(token);
   const { address } = useAccount();
-  const isCorrentNetwork =  useIsCorrentNetwork()
-  
+  const isCorrentNetwork = useIsCorrentNetwork();
+
   return useQuery({
     queryFn: async () => {
       if (!token || !address || !tokenContract || !isCorrentNetwork) return "0";
       let res;
+
       if (isNativeAddress(token.modifiedToken.address)) {
         res = await web3().eth.getBalance(address);
       } else {
@@ -122,7 +115,11 @@ export const useTokenBalance = (token?: Token) => {
       if (!res) return "0";
       return amountUi(token.modifiedToken, new BN(res));
     },
-    queryKey: [QUERY_KEYS.TOKEN_BALANCE, token?.modifiedToken?.address, address],
+    queryKey: [
+      QUERY_KEYS.TOKEN_BALANCE,
+      token?.modifiedToken?.address,
+      address,
+    ],
     refetchInterval: 10_000,
   });
 };
@@ -143,7 +140,6 @@ export const useSubmitButton = () => {
   const { swapCallback, swapLoading, quote, quoteLoading, quoteError } =
     useLHSwapWithArgs();
 
-    
   const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
   const { switchNetwork, isLoading: switchChainLoading } = useSwitchNetwork();
@@ -151,77 +147,75 @@ export const useSubmitButton = () => {
   const partner = usePartner();
   const outAmount = quote?.outAmount;
 
-   if (quoteLoading) {
-     return {
-       disabled: false,
-       text: "",
-       isLoading: true,
-     };
-   }
+  if (quoteLoading) {
+    return {
+      disabled: false,
+      text: "",
+      isLoading: true,
+    };
+  }
 
-   if (!address) {
-     return {
-       disabled: false,
-       text: "Connect Wallet",
-       onClick: openConnectModal,
-     };
-   }
+  if (!address) {
+    return {
+      disabled: false,
+      text: "Connect Wallet",
+      onClick: openConnectModal,
+    };
+  }
 
-   if (chain?.id !== partner?.chainId) {
-     return {
-       disabled: false,
-       text: `Switch to ${partner?.chainName}`,
-       onClick: () => switchNetwork?.(partner?.chainId),
-       isLoading: switchChainLoading,
-     };
-   }
-   if (!fromToken || !toToken) {
-     return {
-       disabled: true,
-       text: "Select tokens",
-     };
-   }
-   if (!fromAmount) {
-     return {
-       disabled: true,
-       text: "Enter an amount",
-     };
-   }
-   const fromAmountBN = new BN(fromAmount || "0");
-   const fromTokenBalanceBN = new BN(fromTokenBalance || "0");
-   if (fromAmountBN.gt(fromTokenBalanceBN)) {
-     return {
-       disabled: true,
-       text: "Insufficient balance",
-     };
-   }
+  if (chain?.id !== partner?.chainId) {
+    return {
+      disabled: false,
+      text: `Switch to ${partner?.chainName}`,
+      onClick: () => switchNetwork?.(partner?.chainId),
+      isLoading: switchChainLoading,
+    };
+  }
+  if (!fromToken || !toToken) {
+    return {
+      disabled: true,
+      text: "Select tokens",
+    };
+  }
+  if (!fromAmount) {
+    return {
+      disabled: true,
+      text: "Enter an amount",
+    };
+  }
+  const fromAmountBN = new BN(fromAmount || "0");
+  const fromTokenBalanceBN = new BN(fromTokenBalance || "0");
+  if (fromAmountBN.gt(fromTokenBalanceBN)) {
+    return {
+      disabled: true,
+      text: "Insufficient balance",
+    };
+  }
 
-   if (quoteError || BN(outAmount || "0").isZero()) {
-     return {
-       disabled: true,
-       text: "No liquidity",
-     };
-   }
-   if (isNativeAddress(fromToken.modifiedToken.address)) {
-     return {
-       disabled: false,
-       text: "Wrap",
-     };
-   }
-   return {
-     disabled: false,
-     text: "Swap",
-     onClick: swapCallback,
-     isLoading: swapLoading,
-   };
+  if (quoteError || BN(outAmount || "0").isZero()) {
+    return {
+      disabled: true,
+      text: "No liquidity",
+    };
+  }
+  if (isNativeAddress(fromToken.modifiedToken.address)) {
+    return {
+      disabled: false,
+      text: "Wrap",
+    };
+  }
+  return {
+    disabled: false,
+    text: "Swap",
+    onClick: swapCallback,
+    isLoading: swapLoading,
+  };
 };
-
-
 
 export const useLHSwapWithArgs = () => {
   const { fromAmount, fromToken, toToken } = useSwapStore();
   const resetBalances = useResetBalancesCallback();
-    
+
   return useLHSwap({
     fromToken: fromToken?.rawToken,
     toToken: toToken?.rawToken,
@@ -229,9 +223,7 @@ export const useLHSwapWithArgs = () => {
     dexAmountOut: "",
     onSwapSuccess: resetBalances,
   });
-
 };
-
 
 export const useProvider = () => {
   const { data } = useConfig();
@@ -255,7 +247,7 @@ export const useOnPercentClickCallback = () => {
   );
 };
 
-export const useBalances = (token: Token ) => {
+export const useBalances = (token: Token) => {
   const { data: balance } = useTokenBalance(token);
   return { balance };
 };
@@ -267,10 +259,18 @@ export const useResetBalancesCallback = () => {
 
   return useCallback(() => {
     client.invalidateQueries({
-      queryKey: [QUERY_KEYS.TOKEN_BALANCE, fromToken?.modifiedToken?.address, address],
+      queryKey: [
+        QUERY_KEYS.TOKEN_BALANCE,
+        fromToken?.modifiedToken?.address,
+        address,
+      ],
     });
     client.invalidateQueries({
-      queryKey: [QUERY_KEYS.TOKEN_BALANCE, toToken?.modifiedToken?.address, address],
+      queryKey: [
+        QUERY_KEYS.TOKEN_BALANCE,
+        toToken?.modifiedToken?.address,
+        address,
+      ],
     });
   }, [client, address, fromToken, toToken]);
 };
@@ -368,4 +368,20 @@ export const useIsCorrentNetwork = () => {
   const partner = usePartner();
 
   return partner?.chainId === id;
+};
+
+export const useSettingsParams = () => {
+  const [query, setQuery] = useQueryParams(
+    {
+      apiUrl: StringParam,
+      slippage: NumberParam,
+    },
+    { updateType: "pushIn" }
+  );
+
+  return {
+    apiUrl: (query.apiUrl as string | undefined) || DEFAULT_API_URL,
+    slippage: (query.slippage as number | undefined) || DEFAULT_SLIPPAGE,
+    setSettings: setQuery,
+  };
 };

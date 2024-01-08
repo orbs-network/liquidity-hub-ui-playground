@@ -12,7 +12,7 @@ import { DappConfig } from "../type";
 import { Text } from "./Text";
 import { partners } from "../config";
 import { Logo } from "./Logo";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSwapStore } from "../store";
 export function PartnerSelect() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -45,7 +45,6 @@ export function PartnerSelect() {
   );
 }
 
-
 const StyledMenuButton = styled.button`
   background: ${({ theme }) => theme.colors.button};
   padding: 8px 20px;
@@ -70,11 +69,12 @@ const Partner = ({
   onClose: () => void;
 }) => {
   const navigate = useNavigate();
-  const reset = useSwapStore(store => store.reset)
-
+  const reset = useSwapStore((store) => store.reset);
+    const searchParams = useLocation().search
+    
   const onClick = () => {
     onClose();
-    navigate(`/${id}`);
+    navigate(`/${id}${searchParams}`);
     reset();
   };
   return (
@@ -99,7 +99,6 @@ const StyledPartner = styled(FlexRow)`
   cursor: pointer;
   width: 100%;
   padding: 15px 0px;
- 
 `;
 
 const StyleDrawerContent = styled(DrawerBody)`
@@ -118,17 +117,16 @@ const Selected = () => {
   );
 };
 
-
 const StyledSelectedLogo = styled(Logo)`
-    width: 30px;
-    height: 30px;
-`
+  width: 30px;
+  height: 30px;
+`;
 
 const StyledSelected = styled(FlexRow)`
-    gap: 10px;
-   p {
+  gap: 10px;
+  p {
     font-size: 17px;
     font-weight: 600;
     color: white;
-   }
-`
+  }
+`;

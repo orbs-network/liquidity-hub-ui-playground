@@ -1,17 +1,18 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { FC } from "react";
+
 
 export interface TokenPanelProps {
   usd?: string;
   balance?: string;
   onSelectToken: (token: Token) => void;
-  onPercentClick?: (value: number) => void;
   inputValue?: string;
   onInputChange?: (value: string) => void;
   token?: Token;
-  inputDisabled?: boolean;
   label?: string;
+  isSrc?: boolean;
 }
 
 
@@ -23,6 +24,7 @@ export interface DappConfig {
   tokenListModifier?: (tokens: any) => Token[];
   baseAssets: any;
   logo: string;
+  Component: FC;
 }
 
 
@@ -43,6 +45,9 @@ export interface DappTheme {
     modalBackground?: string;
     textMain?: string;
     button?: string;
+    buttonDisabled?: string;
+    buttonText?: string;
+    buttonDisabledText?: string;
   };
   fonts: {
     main: string;

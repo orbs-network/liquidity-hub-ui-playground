@@ -3,8 +3,9 @@ export * from './Balance'
 export * from './Logo'
 export * from './USD'
 export * from './TokenSelectModal'
-export * from './Spinner'
 export * from './Text'
 export * from './TextInput'
 export * from './SkeletonLoader'
 export * from "./PartnerSelect";
+export * from "./SwapSubmitButton";
+export * from "./Settings";

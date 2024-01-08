@@ -3,12 +3,11 @@ import {
   useFormatNumber,
   useFromTokenBalance,
   useOnPercentClickCallback,
-  useSubmitButton,
   useToAmount,
   useToTokenBalance,
 } from "../hooks";
 import { useSwapStore } from "../store";
-import { Token, TokenPanelProps } from "../type";
+import { TokenPanelProps } from "../type";
 import { ArrowDownIcon } from "@chakra-ui/icons";
 
 import styled from "styled-components";
@@ -17,7 +16,7 @@ import {
   Balance,
   Logo,
   NumericInput,
-  Spinner,
+  SwapSubmitButton,
   Text,
   TokenModal,
   USD,
@@ -63,7 +62,9 @@ const StyledPercentButtons = styled(FlexRow)`
   }
 `;
 
-const PercentButtons = ({ onClick }: { onClick: (value: number) => void }) => {
+const PercentButtons = () => {
+  const onClick = useOnPercentClickCallback();
+
   return (
     <StyledPercentButtons>
       <button onClick={() => onClick(0.5)}>50%</button>
@@ -83,9 +84,13 @@ const StyledTokenSelect = styled(FlexRow)<{ $selected: boolean }>`
     $selected
       ? "rgb(64, 69, 87)"
       : "linear-gradient(105deg, rgb(68, 138, 255) 3%, rgb(0, 76, 230))"};
+
+  p {
+    color: white;
+  }
 `;
 
-export const TokenSelect = ({
+const TokenSelect = ({
   symbol,
   logoUrl,
   onClick,
@@ -124,47 +129,26 @@ const StyledContainer = styled.div`
   border-radius: 20px;
 `;
 
-const StyledSubmitButton = styled.button<{ $disabled?: boolean }>`
-  pointer-events: ${({ $disabled }) => ($disabled ? "none" : "unset")};
-  background: ${({ $disabled, theme }) =>
-    $disabled
-      ? "linear-gradient(180deg, #252833, #1d212c)"
-      : theme.colors.button};
+const StyledSubmitButton = styled(SwapSubmitButton)`
   min-height: 52px;
   border-radius: 10px;
   font-size: 16px;
   border: unset;
-  color: ${({ $disabled }) => ($disabled ? "#696c80" : "white")};
-  font-weight: 600;
-  margin-top: 20px;
-  cursor: ${({ $disabled }) => ($disabled ? "unset" : "pointer")};
-  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
   position: relative;
 `;
 
 export function Quickswap() {
+  console.log("quick");
+
   return (
     <StyledContainer>
       <FromTokenPanel />
       <ChangeTokens />
       <ToTokenPanel />
-      <SubmitButton />
+      <StyledSubmitButton />
     </StyledContainer>
   );
 }
-const SubmitButton = () => {
-  const { disabled, text, onClick, isLoading } = useSubmitButton();
-
-  return (
-    <StyledSubmitButton
-      $disabled={disabled}
-      onClick={onClick ? () => onClick() : () => {}}
-    >
-      <p style={{ opacity: isLoading ? 0 : 1 }}>{text}</p>
-      {isLoading ? <Spinner /> : null}
-    </StyledSubmitButton>
-  );
-};
 
 const ChangeTokens = () => {
   const onSwitchTokens = useSwapStore((store) => store.onSwitchTokens);
@@ -183,7 +167,6 @@ const FromTokenPanel = () => {
   const { onFromAmountChange, onFromTokenChange, fromAmount, fromToken } =
     useSwapStore();
   const { data: balance } = useFromTokenBalance();
-  const onPercentClick = useOnPercentClickCallback();
 
   return (
     <TokenPanel
@@ -191,10 +174,10 @@ const FromTokenPanel = () => {
       usd=""
       balance={balance}
       onSelectToken={onFromTokenChange}
-      onPercentClick={onPercentClick}
       inputValue={fromAmount}
       onInputChange={onFromAmountChange}
       label="From"
+      isSrc={true}
     />
   );
 };
@@ -212,7 +195,6 @@ const ToTokenPanel = () => {
       balance={balance || "0"}
       onSelectToken={onToTokenChange}
       inputValue={toAmount}
-      inputDisabled={true}
       label="To"
     />
   );
@@ -234,12 +216,11 @@ const TokenPanel = ({
   usd,
   balance,
   onSelectToken,
-  onPercentClick,
   inputValue,
   onInputChange,
   token,
-  inputDisabled,
   label,
+  isSrc,
 }: TokenPanelProps) => {
   const [open, setOpen] = useState(false);
 
@@ -248,9 +229,9 @@ const TokenPanel = ({
       <StyledTokenPanel>
         <StyledTop>
           <Text>{label}</Text>
-          {onPercentClick && <PercentButtons onClick={onPercentClick} />}
+          {isSrc && <PercentButtons />}
         </StyledTop>
-        <FlexRow style={{ width: "100%" }}>
+        <FlexRow style={{ width: "100%", gap: 12 }}>
           <TokenSelect
             symbol={token?.modifiedToken?.symbol}
             logoUrl={token?.modifiedToken?.logoUrl}
@@ -258,7 +239,7 @@ const TokenPanel = ({
           />
           <StyledInput
             onChange={onInputChange}
-            disabled={inputDisabled}
+            disabled={!isSrc}
             value={inputValue}
             placeholder="0.00"
           />
@@ -273,25 +254,11 @@ const TokenPanel = ({
           <USD value={usd} />
         </FlexRow>
       </StyledTokenPanel>
-      <Modal
+      <TokenModal
         onTokenSelect={onSelectToken}
         open={open}
         onClose={() => setOpen(false)}
       />
     </>
-  );
-};
-
-const Modal = ({
-  open,
-  onClose,
-  onTokenSelect,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onTokenSelect: (token: Token) => void;
-}) => {
-  return (
-    <TokenModal onTokenSelect={onTokenSelect} open={open} onClose={onClose} />
   );
 };

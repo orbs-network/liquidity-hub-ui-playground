@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DappConfig, Token } from "./type";
 import { erc20s } from "@defi.org/web3-candies";
+import { Quickswap, Thena } from "./partners";
 
 const quickswapTokensListModifier = (tokens: unknown[]): Token[] => {
   return tokens.map((token: any) => {
@@ -46,6 +47,7 @@ export const partners: { [key: string]: DappConfig } = {
       "https://raw.githubusercontent.com/viaprotocol/tokenlists/main/tokenlists/polygon.json",
     tokenListModifier: quickswapTokensListModifier,
     baseAssets: erc20s.poly,
+    Component: Quickswap,
   },
   thena: {
     name: "Thena",
@@ -56,5 +58,6 @@ export const partners: { [key: string]: DappConfig } = {
       "https://raw.githubusercontent.com/viaprotocol/tokenlists/main/tokenlists/bsc.json",
     baseAssets: erc20s.bsc,
     tokenListModifier: thenaTokenListModifier,
+    Component: Thena,
   },
 };

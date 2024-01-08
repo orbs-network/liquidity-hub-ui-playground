@@ -1,20 +1,14 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Layout } from "./Layout";
-import { Partner } from "./partners/Partner";
+import { App } from "./App";
+import { ROUTES } from "./consts";
 
 export const router = createBrowserRouter([
   {
+    element: <App />,
     path: "/:partner",
-    element: <Layout />,
-    children: [
-      {
-        index: true,
-        element: <Partner />,
-      },
-    ],
   },
   {
-    element: <Navigate to="/quickswap" />,
+    element: <Navigate to={ROUTES.quickswap} />,
     path: "*",
   },
 ]);
