@@ -1,16 +1,18 @@
-import styled, { CSSProperties } from 'styled-components';
-import { Text } from './Text';
+import styled, { CSSProperties } from "styled-components";
+import { useFormatNumber } from "../hooks";
+import { Text } from "./Text";
 interface Props {
   className?: string;
-  value?: string;
+  value?: number | string;
   prefix?: string;
   css?: CSSProperties;
 }
 
-export function USD({ className, value, prefix = '≈ $ ', css = {} }: Props) {
+export function USD({ className, value, prefix = "≈ $ ", css = {} }: Props) {
+  const usd = useFormatNumber({ value });
   return (
     <Container className={className} style={css}>
-      <Text>{`${prefix}${value}`}</Text>
+      <Text>{`${prefix}${usd || '0'}`}</Text>
     </Container>
   );
 }

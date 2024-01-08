@@ -5,7 +5,7 @@ import { FC } from "react";
 
 
 export interface TokenPanelProps {
-  usd?: string;
+  usd?: string | number;
   balance?: string;
   onSelectToken: (token: Token) => void;
   inputValue?: string;
@@ -28,7 +28,7 @@ export interface DappConfig {
 }
 
 
-interface ModifiedToken {
+export interface ModifiedToken {
   address: string;
   symbol: string;
   decimals: number;

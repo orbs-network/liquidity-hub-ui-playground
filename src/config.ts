@@ -20,9 +20,7 @@ const quickswapTokensListModifier = (tokens: unknown[]): Token[] => {
   });
 };
 
-const thenaTokenListModifier = (tokens: unknown[]): Token[] => {
-    console.log({ tokens });
-    
+const thenaTokenListModifier = (tokens: unknown[]): Token[] => {    
   const filteredTokens = tokens.filter((it: any) => it.chainId === 56);
   return filteredTokens.map((it: any) => {
     return {

@@ -66,7 +66,7 @@ export function NumericInput({
               return;
             }
 
-            onChange && onChange(values.formattedValue);
+            onChange && onChange(values.value);
           }}
         />
       </FlexRow>

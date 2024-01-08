@@ -1,13 +1,11 @@
 import { useState } from "react";
 import {
-  useFormatNumber,
-  useFromTokenBalance,
+
+  useFromTokenPanelArgs,
   useOnPercentClickCallback,
-  useToAmount,
-  useToTokenBalance,
+  useToTokenPanelArgs,
 } from "../hooks";
 import { useSwapStore } from "../store";
-import { TokenPanelProps } from "../type";
 import { ArrowDownIcon } from "@chakra-ui/icons";
 
 import styled from "styled-components";
@@ -22,6 +20,7 @@ import {
   USD,
 } from "../components";
 import { IconButton } from "@chakra-ui/react";
+import { TokenPanelProps } from "../type";
 
 const StyledChangeTokens = styled(FlexRow)`
   height: 8px;
@@ -138,8 +137,6 @@ const StyledSubmitButton = styled(SwapSubmitButton)`
 `;
 
 export function Quickswap() {
-  console.log("quick");
-
   return (
     <StyledContainer>
       <FromTokenPanel />
@@ -164,18 +161,16 @@ const ChangeTokens = () => {
 };
 
 const FromTokenPanel = () => {
-  const { onFromAmountChange, onFromTokenChange, fromAmount, fromToken } =
-    useSwapStore();
-  const { data: balance } = useFromTokenBalance();
-
+  const { token, onSelectToken, inputValue, usd, balance, onInputChange } =
+    useFromTokenPanelArgs();
   return (
     <TokenPanel
-      token={fromToken}
-      usd=""
+      token={token}
+      usd={usd}
       balance={balance}
-      onSelectToken={onFromTokenChange}
-      inputValue={fromAmount}
-      onInputChange={onFromAmountChange}
+      onSelectToken={onSelectToken}
+      inputValue={inputValue}
+      onInputChange={onInputChange}
       label="From"
       isSrc={true}
     />
@@ -183,18 +178,14 @@ const FromTokenPanel = () => {
 };
 
 const ToTokenPanel = () => {
-  const { onToTokenChange, toToken } = useSwapStore();
-  const { data } = useToTokenBalance();
-  const balance = useFormatNumber({ value: data });
-
-  const toAmount = useToAmount();
+ const {token, usd, balance, inputValue, onSelectToken} = useToTokenPanelArgs();
   return (
     <TokenPanel
-      token={toToken}
-      usd=""
-      balance={balance || "0"}
-      onSelectToken={onToTokenChange}
-      inputValue={toAmount}
+      token={token}
+      usd={usd}
+      balance={balance}
+      onSelectToken={onSelectToken}
+      inputValue={inputValue}
       label="To"
     />
   );

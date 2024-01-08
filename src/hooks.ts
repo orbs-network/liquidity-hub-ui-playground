@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { amountUi } from "@orbs-network/liquidity-hub-lib";
 import {
   useCallback,
   useEffect,
@@ -29,17 +28,22 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
 import { partners } from "./config";
 import { NumberParam, StringParam, useQueryParams } from "use-query-params";
+import { amountUi, fetchPrice } from "./util";
 
 export const useToAmount = () => {
   const { quote } = useLHSwapWithArgs();
   const { toToken } = useSwapStore();
-  const value = useMemo(() => {
+  return useMemo(() => {
     return !toToken
-      ? ""
-      : amountUi(toToken.modifiedToken, new BN(quote?.outAmount || ""));
+      ? undefined
+      : {
+          rawAmount: quote?.outAmount,
+          uiAmount: amountUi(
+            toToken.modifiedToken.decimals,
+            new BN(quote?.outAmount || "")
+          ),
+        };
   }, [toToken, quote?.outAmount]);
-
-  return useFormatNumber({ value });
 };
 
 export const useTokens = () => {
@@ -67,23 +71,52 @@ export const useTokens = () => {
 };
 
 const useUSDPrice = (address?: string) => {
+  const chainId = useNetwork().chain?.id;
   return useQuery({
     queryFn: async () => {
-      return "0";
+      if (!chainId || !address) return 0;
+      return fetchPrice(address, chainId);
     },
-    queryKey: ["useUSDPrice", address],
-    enabled: !!address,
+    queryKey: ["useUSDPrice", chainId, address],
+    refetchInterval: 10_000,
   });
 };
 
+export const useFromTokenInputUsd = () => {
+  const { data: usd } = useFromTokenUSDPrice();
+  const amount = useSwapStore((s) => s.fromAmount);
+
+  return useMemo(() => {
+    if (!amount) return "";
+    return BN(amount)
+      .multipliedBy(usd || 0)
+      .toString();
+  }, [usd, amount]);
+};
+
+export const useToTokenInputUsd = () => {
+  const { data: usd } = useToTokenUSDPrice();
+  const amount = useToAmount()?.rawAmount;
+  const decimals = useSwapStore((s) => s.toToken)?.modifiedToken.decimals;
+
+  return useMemo(() => {
+    if (!amount) {
+      return "";
+    }
+    const res = BN(amount || "1").multipliedBy(usd || 0);
+
+    return amountUi(decimals, res);
+  }, [usd, amount, decimals]);
+};
+
 export const useFromTokenUSDPrice = () => {
-  const { fromToken } = useSwapStore();
+  const fromToken = useSwapStore((s) => s.fromToken);
 
   return useUSDPrice(fromToken?.modifiedToken.address);
 };
 
 export const useToTokenUSDPrice = () => {
-  const { toToken } = useSwapStore();
+  const toToken = useSwapStore((s) => s.toToken);
   return useUSDPrice(toToken?.modifiedToken.address);
 };
 
@@ -113,7 +146,7 @@ export const useTokenBalance = (token?: Token) => {
       }
 
       if (!res) return "0";
-      return amountUi(token.modifiedToken, new BN(res));
+      return amountUi(token.modifiedToken.decimals, new BN(res));
     },
     queryKey: [
       QUERY_KEYS.TOKEN_BALANCE,
@@ -300,12 +333,30 @@ export const useFormatNumber = ({
   prefix?: string;
   suffix?: string;
 }) => {
+  const decimals = useMemo(() => {
+    if (!value) return 0;
+    const [, decimal] = value.toString().split(".");
+    if (!decimal) return 0;
+    const arr = decimal.split("");
+    let count = 0;
+
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === "0") {
+        count++;
+      } else {
+        break;
+      }
+    }
+
+    return !count ? decimalScale : count + decimalScale;
+  }, [value, decimalScale]);
+
   const result = useNumericFormat({
     allowLeadingZeros: true,
     thousandSeparator: ",",
     displayType: "text",
     value: value || "",
-    decimalScale,
+    decimalScale: decimals,
     prefix,
     suffix,
   });
@@ -383,5 +434,37 @@ export const useSettingsParams = () => {
     apiUrl: (query.apiUrl as string | undefined) || DEFAULT_API_URL,
     slippage: (query.slippage as number | undefined) || DEFAULT_SLIPPAGE,
     setSettings: setQuery,
+  };
+};
+
+export const useFromTokenPanelArgs = () => {
+  const { onFromAmountChange, onFromTokenChange, fromAmount, fromToken } =
+    useSwapStore();
+  const { data: balance } = useFromTokenBalance();
+  const usd = useFromTokenInputUsd();
+
+  return {
+    onSelectToken: onFromTokenChange,
+    usd,
+    balance,
+    token: fromToken,
+    inputValue: fromAmount || "",
+    onInputChange: onFromAmountChange,
+  };
+};
+
+export const useToTokenPanelArgs = () => {
+  const { onToTokenChange, toToken } = useSwapStore();
+  const { data: balance } = useToTokenBalance();
+  const usd = useToTokenInputUsd();
+  const toAmount = useToAmount();
+  const inputValue = useFormatNumber({ value: toAmount?.uiAmount });
+
+  return {
+    onSelectToken: onToTokenChange,
+    usd,
+    balance,
+    token: toToken,
+    inputValue: inputValue || "",
   };
 };
