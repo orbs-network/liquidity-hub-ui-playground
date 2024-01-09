@@ -10,7 +10,7 @@ const useGasPriceUi = () => {
 
   const price = useMemo(() => {
     if (!data) return undefined;
-    const value = data.fast.max.dividedBy(1e9);
+    const value = data.med.max.dividedBy(1e9);
     return value.toString();
   }, [data]);
 

@@ -516,7 +516,7 @@ export const useTxEstimateGasPrice = () => {
   const nativeTokenPrice = useUSDPrice(zeroAddress).data;
   const nativeTokenDecimals = useNetwork().chain?.nativeCurrency.decimals;
 
-  const price = gasPrice?.fast.max;
+  const price = gasPrice?.med.max;
 
   return useMemo(() => {
     if (!price || !nativeTokenPrice) return "0";

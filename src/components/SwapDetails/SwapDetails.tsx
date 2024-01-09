@@ -43,8 +43,9 @@ const MinAmountOut = () => {
   const symbol = useSwapStore((s) => s.toToken)?.modifiedToken.symbol;
   const minAmountOut = useMemo(() => {
     if (!toAmount || !slippage) return "0";
+    const _slippage = slippage / 2;
     return new BN(toAmount)
-      .times(100 - slippage)
+      .times(100 - _slippage)
       .div(100)
       .toString();
   }, [slippage, toAmount]);
