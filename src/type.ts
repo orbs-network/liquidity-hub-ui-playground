@@ -1,8 +1,6 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { FC } from "react";
-
 
 export interface TokenPanelProps {
   usd?: string | number;
@@ -15,7 +13,6 @@ export interface TokenPanelProps {
   isSrc?: boolean;
 }
 
-
 export interface DappConfig {
   name: string;
   chainId: number;
@@ -25,8 +22,19 @@ export interface DappConfig {
   baseAssets: any;
   logo: string;
   Component: FC;
+  wToken: {
+    address: string;
+    symbol: string;
+    decimals: number;
+    logoUrl: string;
+  };
+  nativeToken: {
+    address: string;
+    symbol: string;
+    decimals: number;
+    logoUrl: string;
+  };
 }
-
 
 export interface ModifiedToken {
   address: string;
@@ -36,7 +44,6 @@ export interface ModifiedToken {
 }
 
 export type Token = { modifiedToken: ModifiedToken; rawToken: any };
-
 
 export interface DappTheme {
   colors: {
@@ -48,6 +55,9 @@ export interface DappTheme {
     buttonDisabled?: string;
     buttonText?: string;
     buttonDisabledText?: string;
+    card?: string;
+    borderMain?: string;
+    textSecondary?: string;
   };
   fonts: {
     main: string;

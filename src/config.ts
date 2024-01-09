@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DappConfig, Token } from "./type";
-import { erc20s } from "@defi.org/web3-candies";
+import { erc20s, networks } from "@defi.org/web3-candies";
 import { Quickswap, Thena } from "./partners";
 
 const quickswapTokensListModifier = (tokens: unknown[]): Token[] => {
@@ -46,6 +46,8 @@ export const partners: { [key: string]: DappConfig } = {
     tokenListModifier: quickswapTokensListModifier,
     baseAssets: erc20s.poly,
     Component: Quickswap,
+    wToken: networks.poly.wToken,
+    nativeToken: networks.poly.native,
   },
   thena: {
     name: "Thena",
@@ -57,5 +59,7 @@ export const partners: { [key: string]: DappConfig } = {
     baseAssets: erc20s.bsc,
     tokenListModifier: thenaTokenListModifier,
     Component: Thena,
+    wToken: networks.bsc.wToken,
+    nativeToken: networks.bsc.native,
   },
 };

@@ -58,12 +58,16 @@ interface PersistedStore {
   };
   addToken: (chainId: number, token: PerstistdStoreToken) => void;
   removeToken: (chainId: number, token: PerstistdStoreToken) => void;
+  password?: string;
+  setPassword: (password: string) => void;
 }
 
 export const usePersistedStore = create(
   persist<PersistedStore>(
     (set) => ({
+      password: undefined,
       tokens: {},
+      setPassword: (password) => set({ password }),
       removeToken: (chainId, token) =>
         set((state) => ({
           tokens: {

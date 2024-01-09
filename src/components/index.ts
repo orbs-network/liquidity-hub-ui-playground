@@ -9,3 +9,5 @@ export * from './SkeletonLoader'
 export * from "./PartnerSelect";
 export * from "./SwapSubmitButton";
 export * from "./Settings";
+export * from "./SwapDetails/SwapDetails";
+export * from "./Password";

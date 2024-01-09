@@ -1,4 +1,4 @@
-import { ModalBody, ModalCloseButton, ModalContent, ModalHeader } from "@chakra-ui/react";
+import { Input, ModalBody, ModalCloseButton, ModalContent, ModalHeader } from "@chakra-ui/react";
 import styled from "styled-components";
 
 export const FlexRow = styled.div`
@@ -34,3 +34,7 @@ export const StyledModalBody = styled(ModalBody)`
 export const StyledModalCloseButton = styled(ModalCloseButton)`
     color: ${({ theme }) => theme.colors.textMain};
 `
+
+export const StyledInput = styled(Input)`
+  color: ${({ theme }) => theme.colors.textMain};
+`;

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-
   useFromTokenPanelArgs,
   useOnPercentClickCallback,
   useToTokenPanelArgs,
@@ -14,6 +13,7 @@ import {
   Balance,
   Logo,
   NumericInput,
+  SwapDetails,
   SwapSubmitButton,
   Text,
   TokenModal,
@@ -137,11 +137,13 @@ const StyledSubmitButton = styled(SwapSubmitButton)`
 `;
 
 export function Quickswap() {
+
   return (
     <StyledContainer>
       <FromTokenPanel />
       <ChangeTokens />
       <ToTokenPanel />
+      <StyledSwapDetails />
       <StyledSubmitButton />
     </StyledContainer>
   );
@@ -178,7 +180,8 @@ const FromTokenPanel = () => {
 };
 
 const ToTokenPanel = () => {
- const {token, usd, balance, inputValue, onSelectToken} = useToTokenPanelArgs();
+  const { token, usd, balance, inputValue, onSelectToken } =
+    useToTokenPanelArgs();
   return (
     <TokenPanel
       token={token}
@@ -196,11 +199,23 @@ const StyledTop = styled(FlexRow)`
   justify-content: space-between;
 `;
 
-const StyledTokenPanel = styled(FlexColumn)`
-  background-color: #232734;
+const Card = styled(FlexColumn)`
+  background-color: ${({ theme }) => theme.colors.card};
   border-radius: 10px;
   padding: 16px;
   gap: 16px;
+`;
+
+const StyledTokenPanel = styled(Card)``;
+
+const StyledSwapDetails = styled(SwapDetails)`
+  background-color: transparent;
+  border-radius: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.borderMain};
+  padding: 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 `;
 
 const TokenPanel = ({

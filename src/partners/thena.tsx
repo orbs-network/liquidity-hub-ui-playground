@@ -9,6 +9,7 @@ import {
   Text,
   TokenModal,
   SwapSubmitButton,
+  SwapDetails,
 } from "../components";
 import { FlexColumn, FlexRow } from "../styles";
 import {
@@ -229,6 +230,7 @@ export const Thena = () => {
             <FromTokenPanel />
             <ChangeTokens />
             <ToTokenPanel />
+            <StyledSwapDetails />
           </FlexColumn>
           <StyledSubmitButton />
         </Card.Content>
@@ -335,3 +337,17 @@ const ToTokenPanel = () => {
     />
   );
 };
+
+
+
+const StyledSwapDetails = styled(SwapDetails)`
+  background: rgb(9 3 51);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  width: 100%;
+  gap: 4px;
+  border: 1px solid rgb(9 3 51 / 1);
+  border-radius: 3px;
+  border: 1px solid #bd00ed;
+`;

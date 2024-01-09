@@ -17,12 +17,12 @@ const client = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RainbowProvider>
-      <ChakraProvider>
-        <QueryClientProvider client={client}>
+    <QueryClientProvider client={client}>
+      <RainbowProvider>
+        <ChakraProvider>
           <RouterProvider router={router} />
-        </QueryClientProvider>
-      </ChakraProvider>
-    </RainbowProvider>
+        </ChakraProvider>
+      </RainbowProvider>
+    </QueryClientProvider>
   </React.StrictMode>
 );

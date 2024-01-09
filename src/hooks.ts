@@ -20,6 +20,7 @@ import {
   contract,
   erc20abi,
   web3,
+  estimateGasPrice,
 } from "@defi.org/web3-candies";
 import _ from "lodash";
 import { useLHSwap } from "@orbs-network/liquidity-hub-lib";
@@ -29,6 +30,7 @@ import { useParams } from "react-router-dom";
 import { partners } from "./config";
 import { NumberParam, StringParam, useQueryParams } from "use-query-params";
 import { amountUi, fetchPrice } from "./util";
+import Web3 from "web3";
 
 export const useToAmount = () => {
   const { quote } = useLHSwapWithArgs();
@@ -70,14 +72,19 @@ export const useTokens = () => {
   });
 };
 
-const useUSDPrice = (address?: string) => {
+export const useUSDPrice = (address?: string) => {
   const chainId = useNetwork().chain?.id;
+  const wTokenAddress = usePartner()?.wToken.address;
   return useQuery({
     queryFn: async () => {
-      if (!chainId || !address) return 0;
-      return fetchPrice(address, chainId);
+      if (!chainId || !address || !wTokenAddress) return 0;
+
+      return fetchPrice(
+        isNativeAddress(address) ? wTokenAddress : address,
+        chainId
+      );
     },
-    queryKey: ["useUSDPrice", chainId, address],
+    queryKey: ["useUSDPrice", chainId, address, wTokenAddress],
     refetchInterval: 10_000,
   });
 };
@@ -153,7 +160,7 @@ export const useTokenBalance = (token?: Token) => {
       token?.modifiedToken?.address,
       address,
     ],
-    refetchInterval: 10_000,
+    refetchInterval: 15_000,
   });
 };
 
@@ -287,25 +294,39 @@ export const useBalances = (token: Token) => {
 
 export const useResetBalancesCallback = () => {
   const client = useQueryClient();
-  const { fromToken, toToken } = useSwapStore();
+  const { fromToken, toToken } = useSwapStore((s) => ({
+    fromToken: s.fromToken,
+    toToken: s.toToken,
+  }));
   const { address } = useAccount();
 
   return useCallback(() => {
+    const fromKey = [
+      QUERY_KEYS.TOKEN_BALANCE,
+      fromToken?.modifiedToken?.address,
+      address,
+    ];
+    const toKey = [
+      QUERY_KEYS.TOKEN_BALANCE,
+      toToken?.modifiedToken?.address,
+      address,
+    ];
+    client.setQueryData(fromKey, "");
+    client.setQueryData(toKey, "");
     client.invalidateQueries({
-      queryKey: [
-        QUERY_KEYS.TOKEN_BALANCE,
-        fromToken?.modifiedToken?.address,
-        address,
-      ],
+      queryKey: fromKey,
+      type: "all",
     });
     client.invalidateQueries({
-      queryKey: [
-        QUERY_KEYS.TOKEN_BALANCE,
-        toToken?.modifiedToken?.address,
-        address,
-      ],
+      queryKey: toKey,
+      type: "all",
     });
-  }, [client, address, fromToken, toToken]);
+  }, [
+    address,
+    client,
+    fromToken?.modifiedToken?.address,
+    toToken?.modifiedToken?.address,
+  ]);
 };
 
 export const usePartner = () => {
@@ -467,4 +488,38 @@ export const useToTokenPanelArgs = () => {
     token: toToken,
     inputValue: inputValue || "",
   };
+};
+
+const useWeb3 = () => {
+  const provider = useProvider();
+  return useMemo(() => {
+    if (provider) return new Web3(provider);
+  }, [provider]);
+};
+
+export const useGasPriceQuery = () => {
+  const chainId = useNetwork().chain?.id;
+  const web3 = useWeb3();
+  return useQuery({
+    queryKey: [QUERY_KEYS.GAS_PRICE, chainId],
+    queryFn: () => {
+      return estimateGasPrice(undefined, undefined, web3);
+    },
+    refetchInterval: 15_000,
+    enabled: !!web3,
+  });
+};
+
+export const useTxEstimateGasPrice = () => {
+  const { data: gasPrice } = useGasPriceQuery();
+  const nativeTokenPrice = useUSDPrice(zeroAddress).data;
+  const nativeTokenDecimals = useNetwork().chain?.nativeCurrency.decimals;
+
+  const price = gasPrice?.fast.max;
+
+  return useMemo(() => {
+    if (!price || !nativeTokenPrice) return "0";
+    const value = amountUi(nativeTokenDecimals, price.multipliedBy(750_000));
+    return nativeTokenPrice * Number(value);
+  }, [price, nativeTokenDecimals, nativeTokenPrice]);
 };

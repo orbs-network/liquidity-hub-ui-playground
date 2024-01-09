@@ -1,7 +1,6 @@
 import { SettingsIcon } from "@chakra-ui/icons";
 import {
   Button,
-  Input,
   Modal,
   ModalOverlay,
   useDisclosure,
@@ -12,6 +11,7 @@ import { DEFAULT_API_URL, DEFAULT_SLIPPAGE } from "../consts";
 import { useSettingsParams } from "../hooks";
 import {
   FlexColumn,
+  StyledInput,
   StyledModalBody,
   StyledModalCloseButton,
   StyledModalContent,
@@ -151,9 +151,6 @@ const InputLabel = styled(Text)`
   font-weight: 500;
 `;
 
-const StyledInput = styled(Input)`
-  color: ${({ theme }) => theme.colors.textMain};
-`;
 
 const StyledButton = styled.button`
   color: ${({ theme }) => theme.colors.textMain};
