@@ -510,6 +510,7 @@ export const useGasPriceQuery = () => {
   });
 };
 
+
 export const useTxEstimateGasPrice = () => {
   const { data: gasPrice } = useGasPriceQuery();
   const nativeTokenPrice = useUSDPrice(zeroAddress).data;

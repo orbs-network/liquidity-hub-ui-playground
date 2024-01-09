@@ -155,7 +155,6 @@ const InputLabel = styled(Text)`
 const StyledButton = styled.button`
   color: ${({ theme }) => theme.colors.textMain};
   margin-right: auto;
-  margin-left: 20px;
   svg {
     width: 25px;
     height: 25px;

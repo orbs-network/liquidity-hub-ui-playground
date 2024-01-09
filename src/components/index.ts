@@ -11,3 +11,4 @@ export * from "./SwapSubmitButton";
 export * from "./Settings";
 export * from "./SwapDetails/SwapDetails";
 export * from "./Password";
+export * from "./GasPrice";

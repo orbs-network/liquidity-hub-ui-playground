@@ -16,7 +16,7 @@ import {
   useSettingsParams,
   useWindowResize,
 } from "./hooks";
-import { PartnerSelect, Password, Settings } from "./components";
+import { GasPrice, PartnerSelect, Password, Settings } from "./components";
 import { DEFAULT_PARTNER, PASSWORD } from "./consts";
 import { FlexRow } from "./styles";
 import { getTheme } from "./theme";
@@ -54,6 +54,7 @@ function Wrapped() {
             <PartnerSelect />
             <Settings />
             <ConnectButton />
+            <GasPrice />
           </StyledHeader>
           <LiquidityHubProvider
             uiSettings={{
@@ -106,6 +107,7 @@ export const App = () => {
 const StyledHeader = styled(FlexRow)`
   justify-content: space-between;
   width: 100%;
+  gap: 20px;
 `;
 
 const Container = styled.div<{ $background?: string; $minHeight: number }>`
