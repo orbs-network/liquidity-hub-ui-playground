@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
@@ -62,7 +63,7 @@ function Wrapped() {
             }}
             provider={provider}
             account={address}
-            partner={partner.id}
+            partner={partner.id as any}
             chainId={chainId}
             apiUrl={apiUrl}
             slippage={slippage}

@@ -23,7 +23,7 @@ import {
   estimateGasPrice,
 } from "@defi.org/web3-candies";
 import _ from "lodash";
-import { useLHSwap } from "@orbs-network/liquidity-hub-lib";
+import { useLiquidityHub } from "@orbs-network/liquidity-hub-lib";
 import { DEFAULT_API_URL, DEFAULT_SLIPPAGE, QUERY_KEYS } from "./consts";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
@@ -256,7 +256,7 @@ export const useLHSwapWithArgs = () => {
   const { fromAmount, fromToken, toToken } = useSwapStore();
   const resetBalances = useResetBalancesCallback();
 
-  return useLHSwap({
+  return useLiquidityHub({
     fromToken: fromToken?.rawToken,
     toToken: toToken?.rawToken,
     fromAmount,
