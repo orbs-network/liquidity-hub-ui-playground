@@ -36,7 +36,7 @@ function Wrapped() {
   const { address } = useAccount();
   const provider = useProvider();
 
-  const { apiUrl, slippage, quoteInterval } = useSettingsParams();
+  const { apiUrl, quoteInterval } = useSettingsParams();
   const theme = useMemo(() => getTheme(partner?.id), [partner]);
   useEffect(() => {
     setWeb3Instance(new Web3(provider));
@@ -66,7 +66,6 @@ function Wrapped() {
             chainId={partner.chainId}
             apiUrl={apiUrl}
             quoteInterval={quoteInterval}
-            slippage={slippage}
           >
             <SwapContainer>
               <ProtectedContent>

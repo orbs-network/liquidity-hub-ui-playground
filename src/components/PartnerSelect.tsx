@@ -10,10 +10,10 @@ import { FlexColumn, FlexRow } from "../styles";
 import styled from "styled-components";
 import { DappConfig } from "../type";
 import { Text } from "./Text";
-import { partners } from "../config";
 import { Logo } from "./Logo";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSwapStore } from "../store";
+import { partners } from "../partners-config";
 export function PartnerSelect() {
   const { isOpen, onOpen, onClose } = useDisclosure();
 

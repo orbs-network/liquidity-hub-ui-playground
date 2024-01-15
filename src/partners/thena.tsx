@@ -14,7 +14,6 @@ import {
 import { FlexColumn, FlexRow } from "../styles";
 import {
   useFromTokenPanelArgs,
-  useOnPercentClickCallback,
   useToTokenPanelArgs,
 } from "../hooks";
 import { useSwapStore } from "../store";
@@ -104,7 +103,7 @@ const StyledPercentButtons = styled(FlexRow)`
 `;
 
 const PercentButtons = () => {
-  const onClick = useOnPercentClickCallback();
+  const onClick = useSwapStore((s) => s.onPercentageChange);
 
   return (
     <StyledPercentButtons>

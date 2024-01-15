@@ -17,9 +17,7 @@ export interface DappConfig {
   name: string;
   chainId: number;
   chainName: string;
-  tokenListUrl: string;
-  tokenListModifier?: (tokens: any) => Token[];
-  baseAssets: any;
+  getTokens: () => Promise<Token[]>;
   logo: string;
   Component: FC;
   defaultFromToken: string;
@@ -43,9 +41,10 @@ export interface ModifiedToken {
   symbol: string;
   decimals: number;
   logoUrl?: string;
+  name?: string;
 }
 
-export type Token = { modifiedToken: ModifiedToken; rawToken: any };
+export type Token = { modifiedToken: ModifiedToken; rawToken: any, balance?: string };
 
 export interface DappTheme {
   colors: {

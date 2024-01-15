@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Token, DappConfig } from "./type";
+import BN from 'bignumber.js'
 export interface MainStore {
   dappConfig?: DappConfig;
   updateStore: (value: Partial<MainStore>) => void;
@@ -15,23 +16,21 @@ interface Store {
   fromToken?: Token;
   toToken?: Token;
   fromAmount?: string;
+  fetchingBalancesAfterTx?: boolean;
   updateStore: (value: Partial<Store>) => void;
   onFromAmountChange: (value: string) => void;
   onFromTokenChange: (value: Token) => void;
   onToTokenChange: (value: Token) => void;
   onSwitchTokens: () => void;
+  onPercentageChange: (value: number) => void;
   reset: () => void;
-  setDefaultTokens: (
-    fromToken: string,
-    toToken: string,
-    tokens?: Token[]
-  ) => void;
 }
 
 const initialState: Partial<Store> = {
   fromToken: undefined,
   toToken: undefined,
   fromAmount: undefined,
+  fetchingBalancesAfterTx: false,
 };
 
 export const useSwapStore = create<Store>((set) => ({
@@ -40,26 +39,19 @@ export const useSwapStore = create<Store>((set) => ({
   onFromAmountChange: (value) => set({ fromAmount: value }),
   onFromTokenChange: (value) => set({ fromToken: value }),
   onToTokenChange: (value) => set({ toToken: value }),
+  onPercentageChange: (percent) =>
+    set((state) => ({
+      fromAmount: new BN(state.fromToken?.balance || "0")
+        .multipliedBy(percent)
+        .toString(),
+    })),
+
   onSwitchTokens: () =>
     set((state) => ({
       fromToken: state.toToken,
       toToken: state.fromToken,
     })),
   reset: () => set({ ...initialState }),
-
-  setDefaultTokens: (fromToken, toToken, tokens) =>
-    set((store) => ({
-      fromToken:
-        store.toToken ||
-        tokens?.find(
-          (t) => t.modifiedToken.symbol === fromToken
-        ),
-      toToken:
-        store.toToken ||
-        tokens?.find(
-          (t) => t.modifiedToken.symbol === toToken
-        ),
-    })),
 }));
 
 export interface PerstistdStoreToken {

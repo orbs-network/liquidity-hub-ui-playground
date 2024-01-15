@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import styled from "styled-components";
-import { useTokenBalance, useFormatNumber, useTokens } from "../../hooks";
+import { useFormatNumber, useTokens } from "../../hooks";
 import {
   PerstistdStoreToken,
   usePersistedStore,
@@ -18,19 +18,14 @@ import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as List } from "react-window";
 import { Token } from "../../type";
 import {
+  FlexColumn,
   FlexRow,
   StyledModalBody,
   StyledModalCloseButton,
   StyledModalContent,
   StyledModalHeader,
 } from "../../styles";
-import {
-  Modal,
-  ModalOverlay,
-  IconButton,
-  Fade,
-  Skeleton,
-} from "@chakra-ui/react";
+import { Modal, ModalOverlay, IconButton, Fade } from "@chakra-ui/react";
 import { StyledListToken } from "./styles";
 import { useNetwork } from "wagmi";
 import { eqIgnoreCase } from "@defi.org/web3-candies";
@@ -65,9 +60,8 @@ const filterTokens = (list: Token[], filterValue: string) => {
 const Row = (props: any) => {
   const { index, style, data } = props;
   const token: Token = data.tokens[index];
-  const { data: balance, isLoading } = useTokenBalance(token);
-  
-  const _balance = useFormatNumber({ value: balance, decimalScale: 4 });
+
+  const _balance = useFormatNumber({ value: token.balance, decimalScale: 4 });
   const { fromToken, toToken } = useSwapStore((store) => {
     return {
       fromToken: store.fromToken,
@@ -110,23 +104,23 @@ const Row = (props: any) => {
               height: 30,
             }}
           />
-          {token.modifiedToken.symbol}
+          <FlexColumn style={{ alignItems: "flex-start" }}>
+            <Text>{token.modifiedToken.symbol}</Text>
+            {token.modifiedToken.name && (
+              <StyledTokenName>{token.modifiedToken.name}</StyledTokenName>
+            )}
+          </FlexColumn>
         </FlexRow>
-        {!isLoading ? (
-          <StyledBalance>{_balance}</StyledBalance>
-        ) : (
-          <Skeleton
-            variant="text"
-            startColor="rgba(255,255,255,0.2)"
-            endColor="rgba(255,255,255,0.1)"
-            width={"50px"}
-            height={"15px"}
-          />
-        )}
+        <StyledBalance>{_balance}</StyledBalance>
       </StyledListToken>
     </div>
   );
 };
+
+const StyledTokenName = styled(Text)`
+  font-size: 12px;
+  opacity: 0.8;
+`;
 
 const StyledBalance = styled(Text)`
   font-size: 14px;
@@ -141,7 +135,8 @@ export function TokenModal({
   onClose: () => void;
   onTokenSelect: (token: any) => void;
 }) {
-  const { data: tokens } = useTokens();
+  const { data: tokens = [] } = useTokens();
+
   const [filterValue, setFilterValue] = useState("");
   const [view, setView] = useState(TokenListView.DEFAULT);
   const addToken = usePersistedStore((store) => store.addToken);
@@ -225,7 +220,7 @@ export function TokenModal({
                       itemData={itemData}
                       height={height || 0}
                       itemCount={filteredTokens?.length}
-                      itemSize={50}
+                      itemSize={60}
                       width={width || 0}
                     >
                       {Row}

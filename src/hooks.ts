@@ -9,18 +9,16 @@ import {
 import { usePersistedStore, useSwapStore } from "./store";
 import BN from "bignumber.js";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { Token } from "./type";
 import { useNumericFormat } from "react-number-format";
-
 import { useAccount, useConfig, useSwitchNetwork, useNetwork } from "wagmi";
 import {
   zeroAddress,
   isNativeAddress,
   erc20abi,
   estimateGasPrice,
+  eqIgnoreCase,
 } from "@defi.org/web3-candies";
-import _ from "lodash";
 import { useLiquidityHub } from "@orbs-network/liquidity-hub-lib";
 import {
   DEFAULT_API_URL,
@@ -30,10 +28,16 @@ import {
 } from "./consts";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
-import { partners } from "./config";
 import { NumberParam, StringParam, useQueryParams } from "use-query-params";
-import { amountUi, fetchPrice } from "./util";
+import {
+  amountUi,
+  fetchPrice,
+  tokensListWithBalances,
+  updateBalancesLoop,
+} from "./util";
 import Web3 from "web3";
+import { partners } from "./partners-config";
+import _ from "lodash";
 
 export const useToAmount = () => {
   const { quote } = useLHSwapWithArgs();
@@ -53,34 +57,41 @@ export const useToAmount = () => {
 
 export const useTokens = () => {
   const partner = usePartner();
-  const { setDefaultTokens } = useSwapStore();
+  const { updateStore, fromToken, toToken } = useSwapStore();
+  const { address } = useAccount();
+  const web3 = useWeb3();
+  const correctNetwork = useIsCorrentNetwork();
 
   return useQuery({
     queryFn: async () => {
-      if (!partner) return null;
-      let tokens = await (await axios.get(partner?.tokenListUrl)).data;
-      const candiesAddresses = [
-        zeroAddress,
-        ..._.map(partner.baseAssets, (t) => t().address),
-      ];
-      tokens = _.sortBy(tokens, (t: any) => {
-        const index = candiesAddresses.indexOf(t.address);
-        return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
-      });
+      if (address && !web3) return [];
+      let tokens = await partner!.getTokens();
 
-      const result = partner?.tokenListModifier
-        ? partner.tokenListModifier(tokens)
-        : tokens;
+      if (address && web3) {
+        tokens = await tokensListWithBalances(web3, address, tokens);
+      }
 
-      setDefaultTokens(
-        partner.defaultFromToken,
-        partner.defaultToToken,
-        result
+      const sorted = _.orderBy(
+        tokens,
+        (t) => {
+          return new BN(t.balance || "0");
+        },
+        ["desc"]
       );
 
-      return result;
+      if (!fromToken) {
+        updateStore({ fromToken: sorted[0] });
+      }
+
+      if (!toToken) {
+        updateStore({ toToken: sorted[1] });
+      }
+
+      return sorted;
     },
-    queryKey: [QUERY_KEYS.GET_TOKENS, partner?.tokenListUrl],
+    queryKey: [QUERY_KEYS.GET_TOKENS, partner?.id, address, web3?.version],
+    enabled: !!partner && correctNetwork,
+    refetchInterval: 60_000,
   });
 };
 
@@ -147,53 +158,19 @@ export const useTokenContract = (token?: Token) => {
   }, [web3, token]);
 };
 
-export const useTokenBalance = (token?: Token) => {
-  const tokenContract = useTokenContract(token);
-  const { address } = useAccount();
-  const isCorrentNetwork = useIsCorrentNetwork();
-  const web3 = useWeb3();
-  const chainId = useNetwork().chain?.id;
-
-  return useQuery({
-    queryFn: async () => {
-      let res;
-
-      if (isNativeAddress(token!.modifiedToken.address)) {
-        res = await web3?.eth.getBalance(address!);
-      } else {
-        res = await tokenContract!.methods.balanceOf(address).call();
-      }
-
-      if (!res) return "0";
-      return amountUi(token!.modifiedToken.decimals, new BN(res));
-    },
-    queryKey: [
-      QUERY_KEYS.TOKEN_BALANCE,
-      token?.modifiedToken?.address,
-      address,
-      chainId,
-    ],
-    refetchInterval: 15_000,
-    staleTime: Infinity,
-    enabled: !!token && !!address && !!tokenContract && isCorrentNetwork,
-  });
-};
-
-export const useFromTokenBalance = () => {
-  const { fromToken } = useSwapStore();
-  return useTokenBalance(fromToken);
-};
-
-export const useToTokenBalance = () => {
-  const { toToken } = useSwapStore();
-  return useTokenBalance(toToken);
-};
-
 export const useSubmitButton = () => {
   const { fromAmount, fromToken, toToken } = useSwapStore();
-  const { data: fromTokenBalance } = useFromTokenBalance();
   const { swapCallback, swapLoading, quote, quoteLoading, quoteError } =
     useLHSwapWithArgs();
+
+  const refetchBalances = useRefetchBalancesCallback();
+
+  const swap = useCallback(async () => {
+    swapCallback({
+      dexSwap: () => {},
+      onSwapSuccess: refetchBalances,
+    });
+  }, [swapCallback, refetchBalances]);
 
   const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
@@ -239,7 +216,7 @@ export const useSubmitButton = () => {
     };
   }
   const fromAmountBN = new BN(fromAmount || "0");
-  const fromTokenBalanceBN = new BN(fromTokenBalance || "0");
+  const fromTokenBalanceBN = new BN(fromToken.balance || "0");
   if (fromAmountBN.gt(fromTokenBalanceBN)) {
     return {
       disabled: true,
@@ -262,21 +239,25 @@ export const useSubmitButton = () => {
   return {
     disabled: false,
     text: "Swap",
-    onClick: swapCallback,
+    onClick: swap,
     isLoading: swapLoading,
   };
 };
 
 export const useLHSwapWithArgs = () => {
   const { fromAmount, fromToken, toToken } = useSwapStore();
-  const resetBalances = useResetBalancesCallback();
+  const { slippage } = useSettingsParams();
+  const fromTokenUsd = useFromTokenUSDPrice().data;
+  const toTokenUsd = useToTokenUSDPrice().data;
 
   return useLiquidityHub({
     fromToken: fromToken?.rawToken,
     toToken: toToken?.rawToken,
-    fromAmount,
+    fromAmountUI: fromAmount,
     dexAmountOut: "",
-    onSwapSuccess: resetBalances,
+    slippage,
+    toTokenUsd,
+    fromTokenUsd,
   });
 };
 
@@ -288,52 +269,58 @@ export const useProvider = () => {
   }, [data]);
 };
 
-export const useOnPercentClickCallback = () => {
-  const { data: balance } = useFromTokenBalance();
-  const updateStore = useSwapStore((store) => store.updateStore);
-  return useCallback(
-    (percent: number) => {
-      if (!balance || BN(balance).isZero()) return;
-      updateStore({
-        fromAmount: new BN(balance || "0").multipliedBy(percent).toString(),
-      });
-    },
-    [balance, updateStore]
-  );
-};
-export const useResetBalancesCallback = () => {
+export const useRefetchBalancesCallback = () => {
   const client = useQueryClient();
-  const chainId = useNetwork().chain?.id;
-  const { fromToken, toToken } = useSwapStore((s) => ({
+  const partner = usePartner();
+  const web3 = useWeb3();
+  const { fromToken, toToken, updateStore } = useSwapStore((s) => ({
     fromToken: s.fromToken,
     toToken: s.toToken,
+    updateStore: s.updateStore,
   }));
   const { address } = useAccount();
 
-  return useCallback(() => {
-    const fromKey = [
-      QUERY_KEYS.TOKEN_BALANCE,
-      fromToken?.modifiedToken?.address,
+  return useCallback(async () => {
+    if (!address || !fromToken || !toToken || !web3) return;
+    updateStore({
+      fetchingBalancesAfterTx: true,
+    });
+    const { updatedFromToken, updatedToToken } = await updateBalancesLoop(
+      web3,
       address,
-      chainId,
-    ];
-    const toKey = [
-      QUERY_KEYS.TOKEN_BALANCE,
-      toToken?.modifiedToken?.address,
-      address,
-      chainId,
-    ];
-    client.setQueryData(fromKey, "");
-    client.setQueryData(toKey, "");
-    client.invalidateQueries(fromKey);
-    client.invalidateQueries(toKey);
-  }, [
-    address,
-    client,
-    fromToken?.modifiedToken?.address,
-    toToken?.modifiedToken?.address,
-    chainId,
-  ]);
+      fromToken,
+      toToken
+    );
+
+    client.setQueryData(
+      [QUERY_KEYS.GET_TOKENS, partner?.id, address, web3?.version],
+      (old?: Token[]) => {
+        if (!old) return old;
+        return old.map((t: Token) => {
+          if (
+            eqIgnoreCase(
+              t.modifiedToken.address,
+              updatedFromToken.modifiedToken.address
+            )
+          ) {
+            return updatedFromToken;
+          }
+          if (
+            eqIgnoreCase(
+              t.modifiedToken.address,
+              updatedToToken.modifiedToken.address
+            )
+          ) {
+            return updatedToToken;
+          }
+          return t;
+        });
+      }
+    );
+    updateStore({
+      fetchingBalancesAfterTx: false,
+    });
+  }, [address, fromToken, toToken, web3, updateStore, client, partner?.id]);
 };
 
 export const usePartner = () => {
@@ -471,32 +458,31 @@ export const useSettingsParams = () => {
 export const useFromTokenPanelArgs = () => {
   const { onFromAmountChange, onFromTokenChange, fromAmount, fromToken } =
     useSwapStore();
-  const { data: balance } = useFromTokenBalance();
   const usd = useFromTokenInputUsd();
+  const balance = useTokenFromTokenList(fromToken)?.balance;
 
   return {
     onSelectToken: onFromTokenChange,
     usd,
-    balance,
     token: fromToken,
     inputValue: fromAmount || "",
     onInputChange: onFromAmountChange,
+    balance,
   };
 };
 
 export const useToTokenPanelArgs = () => {
   const { onToTokenChange, toToken } = useSwapStore();
-  const { data: balance } = useToTokenBalance();
   const usd = useToTokenInputUsd();
   const toAmount = useToAmount();
   const inputValue = useFormatNumber({ value: toAmount?.uiAmount });
-
+  const balance = useTokenFromTokenList(toToken)?.balance;
   return {
     onSelectToken: onToTokenChange,
     usd,
-    balance,
     token: toToken,
     inputValue: inputValue || "",
+    balance,
   };
 };
 
@@ -532,4 +518,15 @@ export const useTxEstimateGasPrice = () => {
     const value = amountUi(nativeTokenDecimals, price.multipliedBy(750_000));
     return nativeTokenPrice * Number(value);
   }, [price, nativeTokenDecimals, nativeTokenPrice]);
+};
+
+export const useTokenFromTokenList = (token?: Token) => {
+  const { data: tokens, dataUpdatedAt } = useTokens();
+  return useMemo(() => {
+    if (!token || !tokens) return undefined;
+    return tokens.find((t) =>
+      eqIgnoreCase(t.modifiedToken.address, token.modifiedToken.address)
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, dataUpdatedAt]);
 };

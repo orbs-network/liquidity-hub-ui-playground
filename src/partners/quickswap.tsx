@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
   useFromTokenPanelArgs,
-  useOnPercentClickCallback,
   useToTokenPanelArgs,
 } from "../hooks";
 import { useSwapStore } from "../store";
@@ -62,12 +61,12 @@ const StyledPercentButtons = styled(FlexRow)`
 `;
 
 const PercentButtons = () => {
-  const onClick = useOnPercentClickCallback();
+  const onPercentageChange = useSwapStore((s) => s.onPercentageChange);
 
   return (
     <StyledPercentButtons>
-      <button onClick={() => onClick(0.5)}>50%</button>
-      <button onClick={() => onClick(1)}>Max</button>
+      <button onClick={() => onPercentageChange(0.5)}>50%</button>
+      <button onClick={() => onPercentageChange(1)}>Max</button>
     </StyledPercentButtons>
   );
 };
@@ -137,7 +136,6 @@ const StyledSubmitButton = styled(SwapSubmitButton)`
 `;
 
 export function Quickswap() {
-
   return (
     <StyledContainer>
       <FromTokenPanel />
@@ -163,33 +161,35 @@ const ChangeTokens = () => {
 };
 
 const FromTokenPanel = () => {
-  const { token, onSelectToken, inputValue, usd, balance, onInputChange } =
-    useFromTokenPanelArgs();    
+  const { token, onSelectToken, inputValue, usd, onInputChange, balance } =
+    useFromTokenPanelArgs();
+  console.log({ token });
+
   return (
     <TokenPanel
       token={token}
       usd={usd}
-      balance={balance}
       onSelectToken={onSelectToken}
       inputValue={inputValue}
       onInputChange={onInputChange}
       label="From"
       isSrc={true}
+      balance={balance}
     />
   );
 };
 
 const ToTokenPanel = () => {
-  const { token, usd, balance, inputValue, onSelectToken } =
+  const { token, usd, inputValue, onSelectToken, balance } =
     useToTokenPanelArgs();
   return (
     <TokenPanel
       token={token}
       usd={usd}
-      balance={balance}
       onSelectToken={onSelectToken}
       inputValue={inputValue}
       label="To"
+      balance={balance}
     />
   );
 };
@@ -220,15 +220,16 @@ const StyledSwapDetails = styled(SwapDetails)`
 
 const TokenPanel = ({
   usd,
-  balance,
   onSelectToken,
   inputValue,
   onInputChange,
   token,
   label,
   isSrc,
+  balance,
 }: TokenPanelProps) => {
   const [open, setOpen] = useState(false);
+
   return (
     <>
       <StyledTokenPanel>
