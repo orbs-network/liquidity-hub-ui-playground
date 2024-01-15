@@ -21,6 +21,11 @@ interface Store {
   onToTokenChange: (value: Token) => void;
   onSwitchTokens: () => void;
   reset: () => void;
+  setDefaultTokens: (
+    fromToken: string,
+    toToken: string,
+    tokens?: Token[]
+  ) => void;
 }
 
 const initialState: Partial<Store> = {
@@ -41,9 +46,21 @@ export const useSwapStore = create<Store>((set) => ({
       toToken: state.fromToken,
     })),
   reset: () => set({ ...initialState }),
+
+  setDefaultTokens: (fromToken, toToken, tokens) =>
+    set((store) => ({
+      fromToken:
+        store.toToken ||
+        tokens?.find(
+          (t) => t.modifiedToken.symbol === fromToken
+        ),
+      toToken:
+        store.toToken ||
+        tokens?.find(
+          (t) => t.modifiedToken.symbol === toToken
+        ),
+    })),
 }));
-
-
 
 export interface PerstistdStoreToken {
   address: string;
@@ -91,4 +108,3 @@ export const usePersistedStore = create(
     }
   )
 );
-

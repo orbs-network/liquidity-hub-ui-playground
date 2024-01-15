@@ -22,6 +22,8 @@ export interface DappConfig {
   baseAssets: any;
   logo: string;
   Component: FC;
+  defaultFromToken: string;
+  defaultToToken: string;
   wToken: {
     address: string;
     symbol: string;

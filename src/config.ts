@@ -20,7 +20,7 @@ const quickswapTokensListModifier = (tokens: unknown[]): Token[] => {
   });
 };
 
-const thenaTokenListModifier = (tokens: unknown[]): Token[] => {    
+const thenaTokenListModifier = (tokens: unknown[]): Token[] => {
   const filteredTokens = tokens.filter((it: any) => it.chainId === 56);
   return filteredTokens.map((it: any) => {
     return {
@@ -48,6 +48,8 @@ export const partners: { [key: string]: DappConfig } = {
     Component: Quickswap,
     wToken: networks.poly.wToken,
     nativeToken: networks.poly.native,
+    defaultFromToken: "USDC",
+    defaultToToken: "WBTC",
   },
   thena: {
     name: "Thena",
@@ -61,5 +63,7 @@ export const partners: { [key: string]: DappConfig } = {
     Component: Thena,
     wToken: networks.bsc.wToken,
     nativeToken: networks.bsc.native,
+    defaultFromToken: "USDC",
+    defaultToToken: "WBNB",
   },
 };

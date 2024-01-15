@@ -14,7 +14,7 @@ const useGasPriceUi = () => {
     return value.toString();
   }, [data]);
 
-  return useFormatNumber({ value: price });
+  return useFormatNumber({ value: price, decimalScale: 2 });
 };
 
 export function GasPrice() {

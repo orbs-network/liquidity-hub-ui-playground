@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import styled from "styled-components";
-import { useBalances, useFormatNumber, useTokens } from "../../hooks";
+import { useTokenBalance, useFormatNumber, useTokens } from "../../hooks";
 import {
   PerstistdStoreToken,
   usePersistedStore,
@@ -65,7 +65,8 @@ const filterTokens = (list: Token[], filterValue: string) => {
 const Row = (props: any) => {
   const { index, style, data } = props;
   const token: Token = data.tokens[index];
-  const { balance } = useBalances(token);
+  const { data: balance, isLoading } = useTokenBalance(token);
+  
   const _balance = useFormatNumber({ value: balance, decimalScale: 4 });
   const { fromToken, toToken } = useSwapStore((store) => {
     return {
@@ -111,7 +112,7 @@ const Row = (props: any) => {
           />
           {token.modifiedToken.symbol}
         </FlexRow>
-        {_balance ? (
+        {!isLoading ? (
           <StyledBalance>{_balance}</StyledBalance>
         ) : (
           <Skeleton

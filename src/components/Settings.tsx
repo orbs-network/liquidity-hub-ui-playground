@@ -7,7 +7,7 @@ import {
 } from "@chakra-ui/react";
 import { createContext, useCallback, useContext, useState } from "react";
 import styled from "styled-components";
-import { DEFAULT_API_URL, DEFAULT_SLIPPAGE } from "../consts";
+import { DEFAULT_API_URL, DEFAULT_QUOTE_INTERVAL, DEFAULT_SLIPPAGE } from "../consts";
 import { useSettingsParams } from "../hooks";
 import {
   FlexColumn,
@@ -19,10 +19,13 @@ import {
 } from "../styles";
 import { Text } from "./Text";
 
+
+
 interface ContextArgs {
   data: {
     apiUrl: string;
     slippage: number;
+    quoteInterval: number;
   };
   updateInput: (name: string, value: string) => void;
 }
@@ -34,6 +37,7 @@ export const Settings = () => {
   const [data, setData] = useState({
     apiUrl: params.apiUrl || DEFAULT_API_URL,
     slippage: params.slippage || DEFAULT_SLIPPAGE,
+    quoteInterval: params.quoteInterval || DEFAULT_QUOTE_INTERVAL,
   });
 
   const updateInput = useCallback(
@@ -48,6 +52,7 @@ export const Settings = () => {
     setData({
       apiUrl: params.apiUrl,
       slippage: params.slippage,
+      quoteInterval: params.quoteInterval,
     });
   }, [params, onClose]);
 
@@ -55,6 +60,8 @@ export const Settings = () => {
     const _data = {
       apiUrl: data.apiUrl || DEFAULT_API_URL,
       slippage: data.slippage || DEFAULT_SLIPPAGE,
+      quoteInterval: data.quoteInterval || DEFAULT_QUOTE_INTERVAL,
+
     };
     params.setSettings(_data);
     setData(_data);
@@ -76,6 +83,7 @@ export const Settings = () => {
             <StyledInputs>
               <ApiInput />
               <Slippage />
+              <QuoteRefetchInterval />
             </StyledInputs>
             <StyledSubmit onClick={onSave}>Save</StyledSubmit>
           </StyledModalBody>
@@ -139,6 +147,29 @@ const Slippage = () => {
     </InputContainer>
   );
 };
+
+
+const QuoteRefetchInterval = () => {
+  const { data, updateInput } = useSettingsContext();
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateInput("quoteInterval", e.target.value);
+  };
+
+  return (
+    <InputContainer>
+      <InputLabel>Quote refetch interfval {`(milliseconds)`}</InputLabel>
+      <StyledInput
+        placeholder="Quote Refetch Interval"
+        type="number"
+        value={data.quoteInterval || ""}
+        onChange={onChange}
+        max={100}
+      />
+    </InputContainer>
+  );
+};
+
 
 const InputContainer = styled(FlexColumn)`
   align-items: flex-start;

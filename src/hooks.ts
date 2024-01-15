@@ -17,14 +17,17 @@ import { useAccount, useConfig, useSwitchNetwork, useNetwork } from "wagmi";
 import {
   zeroAddress,
   isNativeAddress,
-  contract,
   erc20abi,
-  web3,
   estimateGasPrice,
 } from "@defi.org/web3-candies";
 import _ from "lodash";
 import { useLiquidityHub } from "@orbs-network/liquidity-hub-lib";
-import { DEFAULT_API_URL, DEFAULT_SLIPPAGE, QUERY_KEYS } from "./consts";
+import {
+  DEFAULT_API_URL,
+  DEFAULT_QUOTE_INTERVAL,
+  DEFAULT_SLIPPAGE,
+  QUERY_KEYS,
+} from "./consts";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
 import { partners } from "./config";
@@ -50,6 +53,7 @@ export const useToAmount = () => {
 
 export const useTokens = () => {
   const partner = usePartner();
+  const { setDefaultTokens } = useSwapStore();
 
   return useQuery({
     queryFn: async () => {
@@ -64,9 +68,17 @@ export const useTokens = () => {
         return index >= 0 ? index : Number.MAX_SAFE_INTEGER;
       });
 
-      return partner?.tokenListModifier
+      const result = partner?.tokenListModifier
         ? partner.tokenListModifier(tokens)
         : tokens;
+
+      setDefaultTokens(
+        partner.defaultFromToken,
+        partner.defaultToToken,
+        result
+      );
+
+      return result;
     },
     queryKey: [QUERY_KEYS.GET_TOKENS, partner?.tokenListUrl],
   });
@@ -84,7 +96,7 @@ export const useUSDPrice = (address?: string) => {
         chainId
       );
     },
-    queryKey: ["useUSDPrice", chainId, address, wTokenAddress],
+    queryKey: [QUERY_KEYS.USD_PRICE, chainId, address, wTokenAddress],
     refetchInterval: 10_000,
   });
 };
@@ -128,39 +140,42 @@ export const useToTokenUSDPrice = () => {
 };
 
 export const useTokenContract = (token?: Token) => {
-  const provider = useProvider();
-
+  const web3 = useWeb3();
   return useMemo(() => {
-    if (!token || !provider) return undefined;
-    return contract(erc20abi, token.modifiedToken.address);
-  }, [provider, token]);
+    if (!token || !web3) return undefined;
+    return new web3.eth.Contract(erc20abi, token.modifiedToken.address);
+  }, [web3, token]);
 };
 
 export const useTokenBalance = (token?: Token) => {
   const tokenContract = useTokenContract(token);
   const { address } = useAccount();
   const isCorrentNetwork = useIsCorrentNetwork();
+  const web3 = useWeb3();
+  const chainId = useNetwork().chain?.id;
 
   return useQuery({
     queryFn: async () => {
-      if (!token || !address || !tokenContract || !isCorrentNetwork) return "0";
       let res;
 
-      if (isNativeAddress(token.modifiedToken.address)) {
-        res = await web3().eth.getBalance(address);
+      if (isNativeAddress(token!.modifiedToken.address)) {
+        res = await web3?.eth.getBalance(address!);
       } else {
-        res = await tokenContract.methods.balanceOf(address).call();
+        res = await tokenContract!.methods.balanceOf(address).call();
       }
 
       if (!res) return "0";
-      return amountUi(token.modifiedToken.decimals, new BN(res));
+      return amountUi(token!.modifiedToken.decimals, new BN(res));
     },
     queryKey: [
       QUERY_KEYS.TOKEN_BALANCE,
       token?.modifiedToken?.address,
       address,
+      chainId,
     ],
     refetchInterval: 15_000,
+    staleTime: Infinity,
+    enabled: !!token && !!address && !!tokenContract && isCorrentNetwork,
   });
 };
 
@@ -286,14 +301,9 @@ export const useOnPercentClickCallback = () => {
     [balance, updateStore]
   );
 };
-
-export const useBalances = (token: Token) => {
-  const { data: balance } = useTokenBalance(token);
-  return { balance };
-};
-
 export const useResetBalancesCallback = () => {
   const client = useQueryClient();
+  const chainId = useNetwork().chain?.id;
   const { fromToken, toToken } = useSwapStore((s) => ({
     fromToken: s.fromToken,
     toToken: s.toToken,
@@ -305,27 +315,24 @@ export const useResetBalancesCallback = () => {
       QUERY_KEYS.TOKEN_BALANCE,
       fromToken?.modifiedToken?.address,
       address,
+      chainId,
     ];
     const toKey = [
       QUERY_KEYS.TOKEN_BALANCE,
       toToken?.modifiedToken?.address,
       address,
+      chainId,
     ];
     client.setQueryData(fromKey, "");
     client.setQueryData(toKey, "");
-    client.invalidateQueries({
-      queryKey: fromKey,
-      type: "all",
-    });
-    client.invalidateQueries({
-      queryKey: toKey,
-      type: "all",
-    });
+    client.invalidateQueries(fromKey);
+    client.invalidateQueries(toKey);
   }, [
     address,
     client,
     fromToken?.modifiedToken?.address,
     toToken?.modifiedToken?.address,
+    chainId,
   ]);
 };
 
@@ -447,6 +454,7 @@ export const useSettingsParams = () => {
     {
       apiUrl: StringParam,
       slippage: NumberParam,
+      quoteInterval: NumberParam,
     },
     { updateType: "pushIn" }
   );
@@ -454,6 +462,8 @@ export const useSettingsParams = () => {
   return {
     apiUrl: (query.apiUrl as string | undefined) || DEFAULT_API_URL,
     slippage: (query.slippage as number | undefined) || DEFAULT_SLIPPAGE,
+    quoteInterval:
+      (query.quoteInterval as number | undefined) || DEFAULT_QUOTE_INTERVAL,
     setSettings: setQuery,
   };
 };
@@ -509,7 +519,6 @@ export const useGasPriceQuery = () => {
     enabled: !!web3,
   });
 };
-
 
 export const useTxEstimateGasPrice = () => {
   const { data: gasPrice } = useGasPriceQuery();

@@ -164,7 +164,7 @@ const ChangeTokens = () => {
 
 const FromTokenPanel = () => {
   const { token, onSelectToken, inputValue, usd, balance, onInputChange } =
-    useFromTokenPanelArgs();
+    useFromTokenPanelArgs();    
   return (
     <TokenPanel
       token={token}
@@ -229,7 +229,6 @@ const TokenPanel = ({
   isSrc,
 }: TokenPanelProps) => {
   const [open, setOpen] = useState(false);
-
   return (
     <>
       <StyledTokenPanel>

@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import { LiquidityHubProvider } from "@orbs-network/liquidity-hub-lib";
 import { ReactNode, useEffect, useMemo } from "react";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { createGlobalStyle } from "styled-components";
 import { setWeb3Instance } from "@defi.org/web3-candies";
 import Web3 from "web3";
@@ -35,9 +35,8 @@ function Wrapped() {
   const { height } = useWindowResize();
   const { address } = useAccount();
   const provider = useProvider();
-  const chainId = useChainId();
 
-  const { apiUrl, slippage } = useSettingsParams();
+  const { apiUrl, slippage, quoteInterval } = useSettingsParams();
   const theme = useMemo(() => getTheme(partner?.id), [partner]);
   useEffect(() => {
     setWeb3Instance(new Web3(provider));
@@ -64,8 +63,9 @@ function Wrapped() {
             provider={provider}
             account={address}
             partner={partner.id as any}
-            chainId={chainId}
+            chainId={partner.chainId}
             apiUrl={apiUrl}
+            quoteInterval={quoteInterval}
             slippage={slippage}
           >
             <SwapContainer>
