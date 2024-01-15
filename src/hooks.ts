@@ -159,7 +159,7 @@ export const useTokenContract = (token?: Token) => {
 };
 
 export const useSubmitButton = () => {
-  const { fromAmount, fromToken, toToken } = useSwapStore();
+  const { fromAmount, fromToken, toToken, updateStore } = useSwapStore();
   const { swapCallback, swapLoading, quote, quoteLoading, quoteError } =
     useLHSwapWithArgs();
 
@@ -168,9 +168,14 @@ export const useSubmitButton = () => {
   const swap = useCallback(async () => {
     swapCallback({
       dexSwap: () => {},
-      onSwapSuccess: refetchBalances,
+      onSwapSuccess: () => {
+        refetchBalances(),
+          updateStore({
+            fromAmount: "",
+          });
+      },
     });
-  }, [swapCallback, refetchBalances]);
+  }, [swapCallback, refetchBalances, updateStore]);
 
   const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
@@ -178,6 +183,7 @@ export const useSubmitButton = () => {
   const { chain } = useNetwork();
   const partner = usePartner();
   const outAmount = quote?.outAmount;
+  const fromTokenBalance = useTokenFromTokenList(fromToken)?.balance;
 
   if (quoteLoading) {
     return {
@@ -216,7 +222,7 @@ export const useSubmitButton = () => {
     };
   }
   const fromAmountBN = new BN(fromAmount || "0");
-  const fromTokenBalanceBN = new BN(fromToken.balance || "0");
+  const fromTokenBalanceBN = new BN(fromTokenBalance || "0");
   if (fromAmountBN.gt(fromTokenBalanceBN)) {
     return {
       disabled: true,
