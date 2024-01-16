@@ -2272,10 +2272,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.5.tgz#1eed23d4844c861a1835b5d33507c1017fa98de8"
   integrity sha512-ZK+W5mVhRppff9BE6YdR8CC52C8zAvsVAiWhEtQ5+oNxFE6h1WdeWo+FJSF8KKvtxxVYZ7MTP/5KoVpAU3aSWg==
 
-"@orbs-network/liquidity-hub-lib@^0.0.36":
-  version "0.0.36"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.36.tgz#e72e6af0e1986cb1749a8b9886c67e485f718c6a"
-  integrity sha512-abGQ1mZa0gtM+7T/t6eEr6e5YLt/jCYL+ggsEZDI9pDUAQKm54RvJHNmyWnlI2HM7ILBpjpxiFZuy5WZphgh6g==
+"@orbs-network/liquidity-hub-lib@^0.0.38":
+  version "0.0.38"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.38.tgz#4486dc47f79449a8667cc6cd09cf3e856e2a6d9d"
+  integrity sha512-pH7xfugIdIE+5Ozzd00FGGWmWbI1SDxz/fjqvnCB7hKcahfBfyNKcWNpR99IeNZ1lyWWv8tTnopjsVSYjMjTjA==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
     "@tanstack/react-query" "^5.14.6"
