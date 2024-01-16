@@ -163,7 +163,6 @@ const ChangeTokens = () => {
 const FromTokenPanel = () => {
   const { token, onSelectToken, inputValue, usd, onInputChange, balance } =
     useFromTokenPanelArgs();
-  console.log({ token });
 
   return (
     <TokenPanel
@@ -239,8 +238,8 @@ const TokenPanel = ({
         </StyledTop>
         <FlexRow style={{ width: "100%", gap: 12 }}>
           <TokenSelect
-            symbol={token?.modifiedToken?.symbol}
-            logoUrl={token?.modifiedToken?.logoUrl}
+            symbol={token?.symbol}
+            logoUrl={token?.logoUrl}
             onClick={() => setOpen(true)}
           />
           <StyledInput

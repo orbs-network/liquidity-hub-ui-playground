@@ -263,8 +263,8 @@ const TokenPanel = ({
                 value={inputValue}
               />
               <TokenSelect
-                symbol={token?.modifiedToken?.symbol}
-                logoUrl={token?.modifiedToken?.logoUrl}
+                symbol={token?.symbol}
+                logoUrl={token?.logoUrl}
                 onClick={() => setOpen(true)}
               />
             </FlexRow>

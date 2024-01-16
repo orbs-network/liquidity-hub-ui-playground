@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { FlexRow } from "../styles";
 import { Text } from "./Text";
 import { GasIcon } from "../assets/svg/gas";
+import { useAccount } from "wagmi";
 
 const useGasPriceUi = () => {
   const { data } = useGasPriceQuery();
@@ -14,11 +15,13 @@ const useGasPriceUi = () => {
     return value.toString();
   }, [data]);
 
-  return useFormatNumber({ value: price, decimalScale: 2 });
+  return useFormatNumber({ value: price, dynamicDecimals: false});
 };
 
 export function GasPrice() {
   const gasPrice = useGasPriceUi();
+  const { address } = useAccount();
+  if (!address) return null;
   return (
     <Container>
       <GasIcon />
@@ -36,6 +39,6 @@ const Container = styled(FlexRow)`
   svg {
     width: 16px;
     height: 16px;
-    color: white
+    color: white;
   }
 `;

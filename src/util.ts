@@ -15,7 +15,6 @@ export async function fetchPriceParaswap(
   ).toString()}&srcDecimals=${inTokenDecimals}&destDecimals=18&side=SELL&network=${chainId}`;
   try {
     const res = await axios.get(url);
-
     return res.data.priceRoute.srcUSD;
   } catch (e) {
     console.log(e);
@@ -62,25 +61,25 @@ export const getTokenBalance = async (
 ) => {
   let res;
   if (!web3) return "0";
-  if (isNativeAddress(token!.modifiedToken.address)) {
+  if (isNativeAddress(token!.address)) {
     res = await web3?.eth.getBalance(account);
   } else {
     const tokenContract = new web3.eth.Contract(
       erc20abi,
-      token!.modifiedToken.address
+      token!.address
     );
     res = await tokenContract!.methods.balanceOf(account).call();
   }
 
   if (!res) return "0";
-  return amountUi(token!.modifiedToken.decimals, new BN(res));
+  return amountUi(token!.decimals, new BN(res));
 };
 
-export const tokensListWithBalances = async (
+export const tokensWithBalances = async (
   web3: Web3,
   account: string,
   tokens: Token[]
-) => {
+): Promise<Token[]> => {
   return Promise.all(
     [...tokens].map(async (token) => {
       const balance = async () => {
@@ -100,33 +99,3 @@ export const tokensListWithBalances = async (
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-export const updateBalancesLoop = async (
-  web3: Web3,
-  address: string,
-  fromToken: Token,
-  toToken: Token
-): Promise<{
-  updatedFromToken: Token;
-  updatedToToken: Token;
-}> => {
-  const [updatedFromToken, updatedToToken] = await tokensListWithBalances(
-    web3,
-    address,
-    [fromToken, toToken]
-  );
-  if (
-    updatedFromToken.balance === fromToken.balance &&
-    updatedToToken.balance === toToken.balance
-  ) {
-    // Balances haven't changed, retry after a delay
-    await delay(3000); // Add a delay to avoid excessive recursive calls
-    return updateBalancesLoop(web3, address, fromToken, toToken);
-  } else {
-    // Balances have changed, return the updated tokens
-    return {
-      updatedFromToken,
-      updatedToToken,
-    };
-  }
-};

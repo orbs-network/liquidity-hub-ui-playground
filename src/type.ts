@@ -20,20 +20,9 @@ export interface DappConfig {
   getTokens: () => Promise<Token[]>;
   logo: string;
   Component: FC;
-  defaultFromToken: string;
-  defaultToToken: string;
-  wToken: {
-    address: string;
-    symbol: string;
-    decimals: number;
-    logoUrl: string;
-  };
-  nativeToken: {
-    address: string;
-    symbol: string;
-    decimals: number;
-    logoUrl: string;
-  };
+  tokenToRawToken: (token?: Token) => any;
+  wToken: Token;
+  nativeToken: Token;
 }
 
 export interface ModifiedToken {
@@ -44,7 +33,15 @@ export interface ModifiedToken {
   name?: string;
 }
 
-export type Token = { modifiedToken: ModifiedToken; rawToken: any, balance?: string };
+
+export type Token = {
+  address: string;
+  symbol: string;
+  decimals: number;
+  logoUrl?: string;
+  name?: string;
+  balance?: string;
+};
 
 export interface DappTheme {
   colors: {

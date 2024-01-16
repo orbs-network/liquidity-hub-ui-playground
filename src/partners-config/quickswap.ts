@@ -4,11 +4,12 @@ import {
   erc20s,
   networks,
   zeroAddress,
+  isNativeAddress
 } from "@defi.org/web3-candies";
 import axios from "axios";
 import _ from "lodash";
 import { Quickswap } from "../partners";
-import { DappConfig } from "../type";
+import { DappConfig, Token } from "../type";
 
 const getTokens = async () => {
   const res = await (
@@ -29,22 +30,40 @@ const getTokens = async () => {
 
   return [networks.poly.native, ...sorted].map((token: any) => {
     return {
-      rawToken: {
-        ...token,
-        tokenInfo: token,
-      },
-      modifiedToken: {
-        address: token.address,
-        symbol: token.symbol,
-        decimals: token.decimals,
-        logoUrl:
-          token.logoUrl ||
-          token.logoURI?.replace("/logo_24.png", "/logo_48.png"),
-        name: token.name,
-      },
+      address: token.address,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      logoUrl:
+        token.logoUrl || token.logoURI?.replace("/logo_24.png", "/logo_48.png"),
+      name: token.name,
     };
   });
 };
+
+
+
+export const tokenToRawToken = (token?: Token) => {
+    if (!token) return;
+
+    return {
+      decimals: token.decimals,
+      symbol: token.symbol,
+      name: token.name,
+      chainId: 137,
+      address: token.address,
+      tokenInfo: {
+        name: token.name,
+        address: token.address,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        chainId: 137,
+        logoURI: token.logoUrl,
+      },
+      tags: [],
+      isNative: isNativeAddress(token.address),
+      isToken: true,
+    };
+}
 
 export const quickswap: DappConfig = {
   name: "Quickswap",
@@ -55,6 +74,5 @@ export const quickswap: DappConfig = {
   Component: Quickswap,
   wToken: networks.poly.wToken,
   nativeToken: networks.poly.native,
-  defaultFromToken: "USDC.e",
-  defaultToToken: "WBTC",
+  tokenToRawToken,
 };

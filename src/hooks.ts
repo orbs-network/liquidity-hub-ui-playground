@@ -29,49 +29,46 @@ import {
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useParams } from "react-router-dom";
 import { NumberParam, StringParam, useQueryParams } from "use-query-params";
-import {
-  amountUi,
-  fetchPrice,
-  tokensListWithBalances,
-  updateBalancesLoop,
-} from "./util";
+import { amountUi, fetchPrice, tokensWithBalances } from "./util";
 import Web3 from "web3";
 import { partners } from "./partners-config";
 import _ from "lodash";
 
 export const useToAmount = () => {
-  const { quote } = useLHSwapWithArgs();
+  const { quote } = useLiquidityHubWithArgs();
   const { toToken } = useSwapStore();
   return useMemo(() => {
-    return !toToken
-      ? undefined
-      : {
-          rawAmount: quote?.outAmount,
-          uiAmount: amountUi(
-            toToken.modifiedToken.decimals,
-            new BN(quote?.outAmount || "")
-          ),
-        };
+    if (!toToken) return;
+    return {
+      rawAmount: quote?.outAmount,
+      uiAmount: amountUi(toToken.decimals, new BN(quote?.outAmount || "")),
+    };
   }, [toToken, quote?.outAmount]);
 };
 
+const useTokensQueryKey = () => {
+  const { partnerId } = useParams<{ partnerId: string }>();
+  const { address } = useAccount();
+  const web3 = useWeb3();
+  return [QUERY_KEYS.GET_TOKENS, partnerId, address, web3?.version];
+};
 export const useTokens = () => {
   const partner = usePartner();
   const { updateStore, fromToken, toToken } = useSwapStore();
   const { address } = useAccount();
   const web3 = useWeb3();
   const correctNetwork = useIsCorrentNetwork();
-
+  const queryKey = useTokensQueryKey();
   return useQuery({
     queryFn: async () => {
       if (address && !web3) return [];
       let tokens = await partner!.getTokens();
 
       if (address && web3) {
-        tokens = await tokensListWithBalances(web3, address, tokens);
+        tokens = await tokensWithBalances(web3, address, tokens);
       }
 
-      const sorted = _.orderBy(
+      let sorted = _.orderBy(
         tokens,
         (t) => {
           return new BN(t.balance || "0");
@@ -79,17 +76,25 @@ export const useTokens = () => {
         ["desc"]
       );
 
+      const nativeTokenIndex = _.findIndex(tokens, (t) =>
+        eqIgnoreCase(t.address, zeroAddress)
+      );
+
+      const nativeToken = tokens[nativeTokenIndex];
+      sorted = sorted.filter((t) => !eqIgnoreCase(t.address, zeroAddress));
+      sorted.unshift(nativeToken);
+
       if (!fromToken) {
-        updateStore({ fromToken: sorted[0] });
+        updateStore({ fromToken: sorted[1] });
       }
 
       if (!toToken) {
-        updateStore({ toToken: sorted[1] });
+        updateStore({ toToken: sorted[2] });
       }
 
       return sorted;
     },
-    queryKey: [QUERY_KEYS.GET_TOKENS, partner?.id, address, web3?.version],
+    queryKey,
     enabled: !!partner && correctNetwork,
     refetchInterval: 60_000,
   });
@@ -112,56 +117,43 @@ export const useUSDPrice = (address?: string) => {
   });
 };
 
-export const useFromTokenInputUsd = () => {
-  const { data: usd } = useFromTokenUSDPrice();
-  const amount = useSwapStore((s) => s.fromAmount);
+export const useTokenAmountUSD = (token?: Token, amount?: string) => {
+  const { data: usd } = useUSDPrice(token?.address);
 
   return useMemo(() => {
-    if (!amount) return "";
-    return BN(amount)
-      .multipliedBy(usd || 0)
-      .toString();
-  }, [usd, amount]);
+    if (!amount || !usd) return "";
+    return BN(amount).multipliedBy(usd).toString();
+  }, [amount, usd]);
+};
+
+export const useFromTokenInputUsd = () => {
+  const { fromToken, fromAmount } = useSwapStore((it) => ({
+    fromToken: it.fromToken,
+    fromAmount: it.fromAmount,
+  }));
+
+  return useTokenAmountUSD(fromToken, fromAmount);
 };
 
 export const useToTokenInputUsd = () => {
-  const { data: usd } = useToTokenUSDPrice();
-  const amount = useToAmount()?.rawAmount;
-  const decimals = useSwapStore((s) => s.toToken)?.modifiedToken.decimals;
+  const toToken = useSwapStore((it) => it.toToken);
+  const amount = useToAmount()?.uiAmount;
 
-  return useMemo(() => {
-    if (!amount) {
-      return "";
-    }
-    const res = BN(amount || "1").multipliedBy(usd || 0);
-
-    return amountUi(decimals, res);
-  }, [usd, amount, decimals]);
-};
-
-export const useFromTokenUSDPrice = () => {
-  const fromToken = useSwapStore((s) => s.fromToken);
-
-  return useUSDPrice(fromToken?.modifiedToken.address);
-};
-
-export const useToTokenUSDPrice = () => {
-  const toToken = useSwapStore((s) => s.toToken);
-  return useUSDPrice(toToken?.modifiedToken.address);
+  return useTokenAmountUSD(toToken, amount);
 };
 
 export const useTokenContract = (token?: Token) => {
   const web3 = useWeb3();
   return useMemo(() => {
     if (!token || !web3) return undefined;
-    return new web3.eth.Contract(erc20abi, token.modifiedToken.address);
+    return new web3.eth.Contract(erc20abi, token.address);
   }, [web3, token]);
 };
 
 export const useSubmitButton = () => {
   const { fromAmount, fromToken, toToken, updateStore } = useSwapStore();
   const { swapCallback, swapLoading, quote, quoteLoading, quoteError } =
-    useLHSwapWithArgs();
+    useLiquidityHubWithArgs();
 
   const refetchBalances = useRefetchBalancesCallback();
 
@@ -185,14 +177,6 @@ export const useSubmitButton = () => {
   const outAmount = quote?.outAmount;
   const fromTokenBalance = useTokenFromTokenList(fromToken)?.balance;
 
-  if (quoteLoading) {
-    return {
-      disabled: false,
-      text: "",
-      isLoading: true,
-    };
-  }
-
   if (!address) {
     return {
       disabled: false,
@@ -209,18 +193,29 @@ export const useSubmitButton = () => {
       isLoading: switchChainLoading,
     };
   }
+
   if (!fromToken || !toToken) {
     return {
       disabled: true,
       text: "Select tokens",
     };
   }
+
   if (!fromAmount) {
     return {
       disabled: true,
       text: "Enter an amount",
     };
   }
+
+  if (quoteLoading) {
+    return {
+      disabled: false,
+      text: "",
+      isLoading: true,
+    };
+  }
+
   const fromAmountBN = new BN(fromAmount || "0");
   const fromTokenBalanceBN = new BN(fromTokenBalance || "0");
   if (fromAmountBN.gt(fromTokenBalanceBN)) {
@@ -236,7 +231,7 @@ export const useSubmitButton = () => {
       text: "No liquidity",
     };
   }
-  if (isNativeAddress(fromToken.modifiedToken.address)) {
+  if (isNativeAddress(fromToken.address)) {
     return {
       disabled: false,
       text: "Wrap",
@@ -250,15 +245,36 @@ export const useSubmitButton = () => {
   };
 };
 
-export const useLHSwapWithArgs = () => {
+const useRawTokens = () => {
+  const { fromToken, toToken } = useSwapStore((s) => ({
+    fromToken: s.fromToken,
+    toToken: s.toToken,
+  }));
+  const partner = usePartner();
+  return useMemo(() => {
+    if (!partner) {
+      return {
+        fromToken: undefined,
+        toToken: undefined,
+      };
+    }
+    return {
+      fromToken: partner.tokenToRawToken(fromToken),
+      toToken: partner.tokenToRawToken(toToken),
+    };
+  }, [fromToken, partner, toToken]);
+};
+
+export const useLiquidityHubWithArgs = () => {
   const { fromAmount, fromToken, toToken } = useSwapStore();
   const { slippage } = useSettingsParams();
-  const fromTokenUsd = useFromTokenUSDPrice().data;
-  const toTokenUsd = useToTokenUSDPrice().data;
+  const fromTokenUsd = useUSDPrice(fromToken?.address).data;
+  const toTokenUsd = useUSDPrice(toToken?.address).data;
+  const rawTokens = useRawTokens();
 
   return useLiquidityHub({
-    fromToken: fromToken?.rawToken,
-    toToken: toToken?.rawToken,
+    fromToken: rawTokens.fromToken,
+    toToken: rawTokens.toToken,
     fromAmountUI: fromAmount,
     dexAmountOut: "",
     slippage,
@@ -277,7 +293,6 @@ export const useProvider = () => {
 
 export const useRefetchBalancesCallback = () => {
   const client = useQueryClient();
-  const partner = usePartner();
   const web3 = useWeb3();
   const { fromToken, toToken, updateStore } = useSwapStore((s) => ({
     fromToken: s.fromToken,
@@ -285,48 +300,33 @@ export const useRefetchBalancesCallback = () => {
     updateStore: s.updateStore,
   }));
   const { address } = useAccount();
+  const queryKey = useTokensQueryKey();
 
   return useCallback(async () => {
     if (!address || !fromToken || !toToken || !web3) return;
     updateStore({
       fetchingBalancesAfterTx: true,
     });
-    const { updatedFromToken, updatedToToken } = await updateBalancesLoop(
+    const [updatedFromToken, updateToToken] = await tokensWithBalances(
       web3,
       address,
-      fromToken,
-      toToken
+      [fromToken, toToken]
     );
 
-    client.setQueryData(
-      [QUERY_KEYS.GET_TOKENS, partner?.id, address, web3?.version],
-      (old?: Token[]) => {
-        if (!old) return old;
-        return old.map((t: Token) => {
-          if (
-            eqIgnoreCase(
-              t.modifiedToken.address,
-              updatedFromToken.modifiedToken.address
-            )
-          ) {
-            return updatedFromToken;
-          }
-          if (
-            eqIgnoreCase(
-              t.modifiedToken.address,
-              updatedToToken.modifiedToken.address
-            )
-          ) {
-            return updatedToToken;
-          }
-          return t;
-        });
-      }
-    );
+    client.setQueryData(queryKey, (old?: Token[]) => {
+      if (!old) return old;
+      return old.map((t: Token) => {
+        if (eqIgnoreCase(t.address, updatedFromToken.address))
+          return updatedFromToken;
+        if (eqIgnoreCase(t.address, updateToToken.address))
+          return updateToToken;
+        return t;
+      });
+    });
     updateStore({
       fetchingBalancesAfterTx: false,
     });
-  }, [address, fromToken, toToken, web3, updateStore, client, partner?.id]);
+  }, [address, fromToken, toToken, web3, updateStore, client, queryKey]);
 };
 
 export const usePartner = () => {
@@ -348,11 +348,13 @@ export const useFormatNumber = ({
   decimalScale = 3,
   prefix,
   suffix,
+  dynamicDecimals = true,
 }: {
   value?: string | number;
   decimalScale?: number;
   prefix?: string;
   suffix?: string;
+  dynamicDecimals?: boolean;
 }) => {
   const decimals = useMemo(() => {
     if (!value) return 0;
@@ -377,7 +379,7 @@ export const useFormatNumber = ({
     thousandSeparator: ",",
     displayType: "text",
     value: value || "",
-    decimalScale: decimals,
+    decimalScale: dynamicDecimals ? decimals : decimalScale,
     prefix,
     suffix,
   });
@@ -530,9 +532,7 @@ export const useTokenFromTokenList = (token?: Token) => {
   const { data: tokens, dataUpdatedAt } = useTokens();
   return useMemo(() => {
     if (!token || !tokens) return undefined;
-    return tokens.find((t) =>
-      eqIgnoreCase(t.modifiedToken.address, token.modifiedToken.address)
-    );
+    return tokens.find((t) => eqIgnoreCase(t.address, token.address));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, dataUpdatedAt]);
 };

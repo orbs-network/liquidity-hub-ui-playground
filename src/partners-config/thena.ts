@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { erc20s, networks } from "@defi.org/web3-candies";
+import { erc20s, networks, isNativeAddress } from "@defi.org/web3-candies";
 import axios from "axios";
 import _ from "lodash";
 import { zeroAddress } from "viem";
 import { Thena } from "../partners";
-import { DappConfig } from "../type";
+import { DappConfig, Token } from "../type";
 
-const getTokens = async () => {
+const getTokens = async (): Promise<Token[]> => {
   let tokens = await (
     await axios.get(
       "https://raw.githubusercontent.com/viaprotocol/tokenlists/main/tokenlists/bsc.json"
@@ -24,16 +24,27 @@ const getTokens = async () => {
   const filteredTokens = tokens.filter((it: any) => it.chainId === 56);
   return filteredTokens.map((it: any) => {
     return {
-      rawToken: it,
-      modifiedToken: {
-        address: it.address,
-        symbol: it.symbol,
-        decimals: it.decimals,
-        logoUrl: it.logoURI?.replace("_1", ""),
-      },
+      address: it.address,
+      symbol: it.symbol,
+      decimals: it.decimals,
+      logoUrl: it.logoURI?.replace("_1", ""),
     };
   });
 };
+
+
+export const tokenToRawToken = (token?: Token) => {  
+  if (!token) return
+    return {
+      name: token.name,
+      symbol: token.symbol,
+      decimals: token.decimals,
+      chainId: 56,
+      address: isNativeAddress(token.address) ? 'BNB' : token.address,
+      logoURI: token.logoUrl,
+    };
+};
+
 
 export const thena: DappConfig = {
   name: "Thena",
@@ -44,6 +55,5 @@ export const thena: DappConfig = {
   Component: Thena,
   wToken: networks.bsc.wToken,
   nativeToken: networks.bsc.native,
-  defaultFromToken: "USDC",
-  defaultToToken: "WBNB",
+  tokenToRawToken,
 };

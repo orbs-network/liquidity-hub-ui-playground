@@ -40,7 +40,7 @@ const TxGasCost = () => {
 const MinAmountOut = () => {
   const toAmount = useToAmount()?.uiAmount;
   const slippage = useSettingsParams().slippage;
-  const symbol = useSwapStore((s) => s.toToken)?.modifiedToken.symbol;
+  const symbol = useSwapStore((s) => s.toToken)?.symbol;
   const minAmountOut = useMemo(() => {
     if (!toAmount || !slippage) return "0";
     const _slippage = slippage / 2;

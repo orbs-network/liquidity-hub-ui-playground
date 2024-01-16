@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { useMemo, useState } from "react";
 
 import styled from "styled-components";
-import { useFromTokenUSDPrice, useToTokenUSDPrice, useFormatNumber, useTxEstimateGasPrice } from "../../hooks";
+import { useFormatNumber, useTxEstimateGasPrice, useUSDPrice } from "../../hooks";
 import { useSwapStore } from "../../store";
 import { FlexRow } from "../../styles";
 import { Text } from "../Text";
@@ -15,8 +15,8 @@ export const PriceCompare = ({ onClick, isOpen }: { onClick: () => void; isOpen:
     fromToken: s.fromToken,
     toToken: s.toToken,
   }));
-  const { data: fromTokenUsd } = useFromTokenUSDPrice();
-  const { data: toTokenUsd } = useToTokenUSDPrice();
+  const { data: fromTokenUsd } = useUSDPrice(fromToken?.address);
+  const { data: toTokenUsd } = useUSDPrice(toToken?.address);
 
   const leftToken = invert ? toToken : fromToken;
   const rightToken = invert ? fromToken : toToken;
@@ -50,8 +50,8 @@ export const PriceCompare = ({ onClick, isOpen }: { onClick: () => void; isOpen:
     <StyledPriceCompare onClick={onClick}>
       <StyledPriceCompareBtn onClick={onInvert}>
         <Text>
-          1 {leftToken?.modifiedToken.symbol} = {_toAmount}{" "}
-          {rightToken?.modifiedToken.symbol}{" "}
+          1 {leftToken?.symbol} = {_toAmount}{" "}
+          {rightToken?.symbol}{" "}
           <span> {`($${_rightTokenUsdAmount})`}</span>
         </Text>
       </StyledPriceCompareBtn>

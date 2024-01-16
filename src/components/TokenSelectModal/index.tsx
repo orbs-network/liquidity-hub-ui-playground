@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import styled from "styled-components";
-import { useFormatNumber, useTokens } from "../../hooks";
+import { useFormatNumber, useTokenAmountUSD, useTokens } from "../../hooks";
 import {
   PerstistdStoreToken,
   usePersistedStore,
@@ -47,12 +47,8 @@ const filterTokens = (list: Token[], filterValue: string) => {
 
   return list.filter((it) => {
     return (
-      it.modifiedToken.symbol
-        .toLowerCase()
-        .indexOf(filterValue.toLowerCase()) >= 0 ||
-      it.modifiedToken.address
-        .toLowerCase()
-        .indexOf(filterValue.toLowerCase()) >= 0
+      it.symbol.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0 ||
+      it.address.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0
     );
   });
 };
@@ -60,8 +56,9 @@ const filterTokens = (list: Token[], filterValue: string) => {
 const Row = (props: any) => {
   const { index, style, data } = props;
   const token: Token = data.tokens[index];
-
+  const usd = useTokenAmountUSD(token, token.balance);
   const _balance = useFormatNumber({ value: token.balance, decimalScale: 4 });
+  const _usd = useFormatNumber({ value: usd, decimalScale: 4, prefix:'$' });
   const { fromToken, toToken } = useSwapStore((store) => {
     return {
       fromToken: store.fromToken,
@@ -77,14 +74,8 @@ const Row = (props: any) => {
   if (!token) return null;
 
   const disabled =
-    eqIgnoreCase(
-      token.modifiedToken.address,
-      fromToken?.modifiedToken?.address || ""
-    ) ||
-    eqIgnoreCase(
-      token.modifiedToken.address,
-      toToken?.modifiedToken.address || ""
-    );
+    eqIgnoreCase(token.address, fromToken?.address || "") ||
+    eqIgnoreCase(token.address, toToken?.address || "");
   return (
     <div style={style}>
       <StyledListToken onClick={onSelect} $disabled={disabled}>
@@ -97,21 +88,25 @@ const Row = (props: any) => {
           }}
         >
           <Logo
-            src={token.modifiedToken.logoUrl}
-            alt={token.modifiedToken.symbol}
+            src={token.logoUrl}
+            alt={token.symbol}
             imgStyle={{
               width: 30,
               height: 30,
             }}
           />
           <FlexColumn style={{ alignItems: "flex-start" }}>
-            <Text>{token.modifiedToken.symbol}</Text>
-            {token.modifiedToken.name && (
-              <StyledTokenName>{token.modifiedToken.name}</StyledTokenName>
-            )}
+            <Text>{token.symbol}</Text>
+            {token.name && <StyledTokenName>{token.name}</StyledTokenName>}
           </FlexColumn>
         </FlexRow>
-        <StyledBalance>{_balance}</StyledBalance>
+        <FlexColumn style={{
+          justifyContent: "flex-end",
+          alignItems: "flex-end",
+        }}>
+          <StyledBalance>{_balance}</StyledBalance>
+          <StyledUSD>{_usd}</StyledUSD>
+        </FlexColumn>
       </StyledListToken>
     </div>
   );
@@ -124,6 +119,11 @@ const StyledTokenName = styled(Text)`
 
 const StyledBalance = styled(Text)`
   font-size: 14px;
+`;
+
+const StyledUSD = styled(Text)`
+  font-size: 12px;
+  opacity: 0.8;
 `;
 
 export function TokenModal({
