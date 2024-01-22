@@ -1,9 +1,10 @@
 import axios from "axios";
 import BN from "bignumber.js";
 import { parsebn } from "@defi.org/web3-candies";
-import { isNativeAddress, erc20abi } from "@defi.org/web3-candies";
+import { isNativeAddress, erc20abi, zeroAddress } from "@defi.org/web3-candies";
 import Web3 from "web3";
 import { Token } from "./type";
+import { multicall } from "@wagmi/core";
 
 export async function fetchPriceParaswap(
   chainId: number,
@@ -54,47 +55,52 @@ export const amountUi = (decimals?: number, amount?: BN) => {
   return amount.times(percision).idiv(percision).div(percision).toString();
 };
 
-export const getTokenBalance = async (
-  web3: Web3,
-  account: string,
-  token: Token
-) => {
-  let res;
-  if (!web3) return "0";
-  if (isNativeAddress(token!.address)) {
-    res = await web3?.eth.getBalance(account);
-  } else {
-    const tokenContract = new web3.eth.Contract(
-      erc20abi,
-      token!.address
-    );
-    res = await tokenContract!.methods.balanceOf(account).call();
-  }
-
-  if (!res) return "0";
-  return amountUi(token!.decimals, new BN(res));
-};
-
 export const tokensWithBalances = async (
   web3: Web3,
+  chainId: number,
   account: string,
   tokens: Token[]
 ): Promise<Token[]> => {
-  return Promise.all(
-    [...tokens].map(async (token) => {
-      const balance = async () => {
-        try {
-          return await getTokenBalance(web3!, account, token);
-        } catch (error) {
-          return undefined;
-        }
-      };
-      return {
-        ...token,
-        balance: await balance(),
-      };
-    })
-  );
+  const native = tokens.find((it) => isNativeAddress(it.address));
+  const erc20Tokens = tokens.filter((it) => !isNativeAddress(it.address));
+
+  const contracts = erc20Tokens.map((token) => {
+    return {
+      address: token.address as `0x${string}`,
+      abi: erc20abi,
+      functionName: "balanceOf",
+      args: [account],
+    } as const;
+  });
+
+  const result = await multicall({ chainId, contracts });
+
+  const balances: { [key: string]: string } = {};
+
+  if (native) {
+    let nativeBalance = "0";
+    try {
+      nativeBalance = await web3.eth.getBalance(account);
+    } catch (error) {
+      console.log(error);
+    }
+    balances[zeroAddress] = amountUi(native.decimals, new BN(nativeBalance));
+  }
+  result.forEach((it, index) => {
+    const token = erc20Tokens[index];
+    let res = "0";
+    if (it.status === "success") {
+      res = (it.result as BN).toString();
+    }
+    balances[token.address] = amountUi(token.decimals, new BN(res));
+  });
+
+  return tokens.map((token) => {
+    return {
+      ...token,
+      balance: balances[token.address] || "0",
+    };
+  });
 };
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

@@ -44,6 +44,7 @@ function Wrapped() {
   if (!partner) {
     return <Navigate to={`/${DEFAULT_PARTNER}`} />;
   }
+  
   const { Component } = partner;
   return (
     <ThemeProvider theme={theme}>
@@ -62,7 +63,7 @@ function Wrapped() {
             }}
             provider={provider}
             account={address}
-            partner={partner.id as any}
+            partner={partner.id}
             chainId={partner.chainId}
             apiUrl={apiUrl}
             quoteInterval={quoteInterval}

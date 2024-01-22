@@ -8,8 +8,8 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "reactjs-popup/dist/index.css";
 
 const INFURA_KEY = "7f79fe8f32bc4c29848c1f49a0b7fbb7";
-const RAINBOW_PROJECT_ID = "c00c0bdae3ede8cf0073f900e6d17f09";
-const APP_NAME = "Dex";
+const projectId = "c00c0bdae3ede8cf0073f900e6d17f09";
+const APP_NAME = "Liquidity hub playground";
 
 const { chains, publicClient } = configureChains(
   [polygon, bsc],
@@ -18,7 +18,7 @@ const { chains, publicClient } = configureChains(
 
 const { connectors } = getDefaultWallets({
   appName: APP_NAME,
-  projectId: RAINBOW_PROJECT_ID!,
+  projectId,
   chains,
 });
 

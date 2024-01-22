@@ -19,7 +19,7 @@ import {
   estimateGasPrice,
   eqIgnoreCase,
 } from "@defi.org/web3-candies";
-import { useLiquidityHub } from "@orbs-network/liquidity-hub-lib";
+import { useLiquidityHub, partner } from "@orbs-network/liquidity-hub-lib";
 import {
   DEFAULT_API_URL,
   DEFAULT_QUOTE_INTERVAL,
@@ -54,6 +54,7 @@ const useTokensQueryKey = () => {
 };
 export const useTokens = () => {
   const partner = usePartner();
+  const chainId = useNetwork().chain?.id;
   const { updateStore, fromToken, toToken } = useSwapStore();
   const { address } = useAccount();
   const web3 = useWeb3();
@@ -65,7 +66,7 @@ export const useTokens = () => {
       let tokens = await partner!.getTokens();
 
       if (address && web3) {
-        tokens = await tokensWithBalances(web3, address, tokens);
+        tokens = await tokensWithBalances(web3, chainId!, address, tokens);
       }
 
       let sorted = _.orderBy(
@@ -95,7 +96,7 @@ export const useTokens = () => {
       return sorted;
     },
     queryKey,
-    enabled: !!partner && correctNetwork,
+    enabled: !!partner && correctNetwork && !!chainId,
     refetchInterval: 60_000,
   });
 };
@@ -114,6 +115,7 @@ export const useUSDPrice = (address?: string) => {
     },
     queryKey: [QUERY_KEYS.USD_PRICE, chainId, address, wTokenAddress],
     refetchInterval: 10_000,
+    staleTime: Infinity
   });
 };
 
@@ -152,22 +154,29 @@ export const useTokenContract = (token?: Token) => {
 
 export const useSubmitButton = () => {
   const { fromAmount, fromToken, toToken, updateStore } = useSwapStore();
-  const { swapCallback, swapLoading, quote, quoteLoading, quoteError } =
-    useLiquidityHubWithArgs();
+  const {
+    confirmSwap,
+    swapLoading,
+    quote,
+    quoteLoading,
+    quoteError,
+    analytics: { initSwap },
+  } = useLiquidityHubWithArgs();
 
   const refetchBalances = useRefetchBalancesCallback();
 
   const swap = useCallback(async () => {
-    swapCallback({
-      dexSwap: () => {},
-      onSwapSuccess: () => {
-        refetchBalances(),
-          updateStore({
-            fromAmount: "",
-          });
-      },
-    });
-  }, [swapCallback, refetchBalances, updateStore]);
+      initSwap();
+    const onSuccess = () => {
+      refetchBalances();
+    
+      updateStore({
+        fromAmount: "",
+      });
+    };
+
+    confirmSwap(onSuccess);
+  }, [confirmSwap, refetchBalances, updateStore, initSwap]);
 
   const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
@@ -201,7 +210,7 @@ export const useSubmitButton = () => {
     };
   }
 
-  if (!fromAmount) {
+  if (!fromAmount || BN(fromAmount).isZero()) {
     return {
       disabled: true,
       text: "Enter an amount",
@@ -294,6 +303,7 @@ export const useProvider = () => {
 export const useRefetchBalancesCallback = () => {
   const client = useQueryClient();
   const web3 = useWeb3();
+  const chainId = useNetwork().chain?.id;
   const { fromToken, toToken, updateStore } = useSwapStore((s) => ({
     fromToken: s.fromToken,
     toToken: s.toToken,
@@ -303,12 +313,13 @@ export const useRefetchBalancesCallback = () => {
   const queryKey = useTokensQueryKey();
 
   return useCallback(async () => {
-    if (!address || !fromToken || !toToken || !web3) return;
+    if (!address || !fromToken || !toToken || !web3 || !chainId) return;
     updateStore({
       fetchingBalancesAfterTx: true,
     });
     const [updatedFromToken, updateToToken] = await tokensWithBalances(
       web3,
+      chainId,
       address,
       [fromToken, toToken]
     );
@@ -326,7 +337,16 @@ export const useRefetchBalancesCallback = () => {
     updateStore({
       fetchingBalancesAfterTx: false,
     });
-  }, [address, fromToken, toToken, web3, updateStore, client, queryKey]);
+  }, [
+    address,
+    fromToken,
+    toToken,
+    web3,
+    updateStore,
+    client,
+    queryKey,
+    chainId,
+  ]);
 };
 
 export const usePartner = () => {
@@ -338,7 +358,7 @@ export const usePartner = () => {
     if (!config) return undefined;
     return {
       ...config,
-      id: partner,
+      id: partner as partner,
     };
   }, [partner]);
 };
