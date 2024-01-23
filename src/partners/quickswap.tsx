@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   useFromTokenPanelArgs,
+  useOnPercentClickCallback,
   useToTokenPanelArgs,
 } from "../hooks";
 import { useSwapStore } from "../store";
@@ -61,7 +62,7 @@ const StyledPercentButtons = styled(FlexRow)`
 `;
 
 const PercentButtons = () => {
-  const onPercentageChange = useSwapStore((s) => s.onPercentageChange);
+  const onPercentageChange = useOnPercentClickCallback()
 
   return (
     <StyledPercentButtons>

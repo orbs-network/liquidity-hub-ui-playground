@@ -115,7 +115,7 @@ export const useUSDPrice = (address?: string) => {
     },
     queryKey: [QUERY_KEYS.USD_PRICE, chainId, address, wTokenAddress],
     refetchInterval: 10_000,
-    staleTime: Infinity
+    staleTime: Infinity,
   });
 };
 
@@ -166,10 +166,10 @@ export const useSubmitButton = () => {
   const refetchBalances = useRefetchBalancesCallback();
 
   const swap = useCallback(async () => {
-      initSwap();
+    initSwap();
     const onSuccess = () => {
       refetchBalances();
-    
+
       updateStore({
         fromAmount: "",
       });
@@ -555,4 +555,23 @@ export const useTokenFromTokenList = (token?: Token) => {
     return tokens.find((t) => eqIgnoreCase(t.address, token.address));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, dataUpdatedAt]);
+};
+
+export const useOnPercentClickCallback = () => {
+  const { fromToken, updateStore } = useSwapStore((s) => ({
+    fromToken: s.fromToken,
+    updateStore: s.updateStore,
+  }));
+  const fromTokenBalance = useTokenFromTokenList(fromToken)?.balance;
+
+  return useCallback(
+    (percent: number) => {
+      updateStore({
+        fromAmount: new BN(fromTokenBalance || "0")
+          .multipliedBy(percent)
+          .toString(),
+      });
+    },
+    [updateStore, fromTokenBalance]
+  );
 };
