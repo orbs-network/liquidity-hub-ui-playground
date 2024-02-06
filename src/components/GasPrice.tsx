@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import { useFormatNumber, useGasPriceQuery } from "../hooks";
+import { useGasPriceQuery } from "../hooks";
 import styled from "styled-components";
 import { FlexRow } from "../styles";
 import { Text } from "./Text";
 import { GasIcon } from "../assets/svg/gas";
 import { useAccount } from "wagmi";
+import { useFormatNumber } from "@orbs-network/liquidity-hub-widget";
 
 const useGasPriceUi = () => {
   const { data } = useGasPriceQuery();
@@ -15,7 +16,7 @@ const useGasPriceUi = () => {
     return value.toString();
   }, [data]);
 
-  return useFormatNumber({ value: price, dynamicDecimals: false});
+  return useFormatNumber({ value: price});
 };
 
 export function GasPrice() {

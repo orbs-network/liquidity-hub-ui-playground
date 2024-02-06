@@ -2272,10 +2272,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.5.tgz#1eed23d4844c861a1835b5d33507c1017fa98de8"
   integrity sha512-ZK+W5mVhRppff9BE6YdR8CC52C8zAvsVAiWhEtQ5+oNxFE6h1WdeWo+FJSF8KKvtxxVYZ7MTP/5KoVpAU3aSWg==
 
-"@orbs-network/liquidity-hub-lib@^0.0.82":
-  version "0.0.82"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.82.tgz#5c09aa2c85aaa75e3313f0836321cbcf75c21134"
-  integrity sha512-X3FgTThPnGhGvDUkLjCflzUcC6gTCDr7FI4lvVnSX6LjA6uPBU8hbHKQwjpECWo6KJgV99/JYKOUXxMT4E6qeA==
+"@orbs-network/liquidity-hub-lib@^0.0.87":
+  version "0.0.87"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.87.tgz#c8b9d0c55a2d964301695e65f9ae7a73cc7dd350"
+  integrity sha512-iL3INKLtW0huxlS6UMnYW1y1u1lMRDfJrvyQlVlaGh+oMFu3/8slR7fleSGW+L8Z1Xo7454qOPKXMv+YhAtzYw==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
     "@tanstack/react-query" "^5.14.6"
@@ -2285,6 +2285,25 @@
     reactjs-popup "^2.0.6"
     styled-components "^6.1.3"
     zustand "^4.4.7"
+
+"@orbs-network/liquidity-hub-widget@^0.0.39":
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.39.tgz#c64c4ebf6aaf11359247a123e8050c8e51c112b2"
+  integrity sha512-4sv0fMyLIL+5mU+TvD54M60xm7TyeLLunu+QUrDBJDqbazHG8S0O/YM0TGIPAkrGj9EfWMYAhYf18cwMo7I0gA==
+  dependencies:
+    "@defi.org/web3-candies" "^4.20.12"
+    "@orbs-network/liquidity-hub-lib" "^0.0.87"
+    axios "^1.6.3"
+    ethereum-multicall "^2.21.0"
+    lodash "^4.17.21"
+    react "^18.2.0"
+    react-animate-height "^3.2.3"
+    react-dom "^18.2.0"
+    react-feather "^2.0.10"
+    react-number-format "^5.3.1"
+    react-virtualized-auto-sizer "^1.0.20"
+    react-window "^1.8.10"
+    web3-utils "^4.1.0"
 
 "@parcel/watcher-android-arm64@2.3.0":
   version "2.3.0"
@@ -5669,7 +5688,7 @@ ethereum-cryptography@^2.0.0, ethereum-cryptography@^2.1.2:
     "@scure/bip32" "1.3.1"
     "@scure/bip39" "1.2.1"
 
-ethereum-multicall@2.x:
+ethereum-multicall@2.x, ethereum-multicall@^2.21.0:
   version "2.21.0"
   resolved "https://registry.yarnpkg.com/ethereum-multicall/-/ethereum-multicall-2.21.0.tgz#a0dc5d5e7bbddabd484a75037ecb9b77ad5688ba"
   integrity sha512-J234OuvUheTKvZVhMk41SwyB66m+MU+Xe2FFWOln8xu6TXKzOzsjSFQn/f5OTDGEiRStKMnJpCvQDim+Uk+qBQ==

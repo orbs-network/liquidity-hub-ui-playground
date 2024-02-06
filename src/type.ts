@@ -1,47 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { FC } from "react";
-
-export interface TokenPanelProps {
-  usd?: string | number;
-  balance?: string;
-  onSelectToken: (token: Token) => void;
-  inputValue?: string;
-  onInputChange?: (value: string) => void;
-  token?: Token;
-  label?: string;
-  isSrc?: boolean;
-}
+import { WidgetArgs, WidgetUISettings } from "@orbs-network/liquidity-hub-widget";
 
 export interface DappConfig {
   name: string;
   chainId: number;
   chainName: string;
-  getTokens: () => Promise<Token[]>;
   logo: string;
-  Component: FC;
-  tokenToRawToken: (token?: Token) => any;
-  wToken: Token;
-  nativeToken: Token;
+  Component: FC<WidgetArgs>;
+  getUISettings?: (darkMode?: boolean) => WidgetUISettings;
 }
-
-export interface ModifiedToken {
-  address: string;
-  symbol: string;
-  decimals: number;
-  logoUrl?: string;
-  name?: string;
-}
-
-
-export type Token = {
-  address: string;
-  symbol: string;
-  decimals: number;
-  logoUrl?: string;
-  name?: string;
-  balance?: string;
-};
 
 export interface DappTheme {
   colors: {

@@ -12,7 +12,6 @@ import { DappConfig } from "../type";
 import { Text } from "./Text";
 import { Logo } from "./Logo";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useSwapStore } from "../store";
 import { partners } from "../partners-config";
 export function PartnerSelect() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -69,13 +68,11 @@ const Partner = ({
   onClose: () => void;
 }) => {
   const navigate = useNavigate();
-  const reset = useSwapStore((store) => store.reset);
     const searchParams = useLocation().search
     
   const onClick = () => {
     onClose();
     navigate(`/${id}${searchParams}`);
-    reset();
   };
   return (
     <StyledPartner onClick={onClick}>

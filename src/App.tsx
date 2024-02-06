@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
-import { LiquidityHubProvider } from "@orbs-network/liquidity-hub-lib";
 import { ReactNode, useEffect, useMemo } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { createGlobalStyle } from "styled-components";
 import { setWeb3Instance } from "@defi.org/web3-candies";
 import Web3 from "web3";
@@ -35,17 +34,22 @@ function Wrapped() {
   const { height } = useWindowResize();
   const { address } = useAccount();
   const provider = useProvider();
-
+  const { openConnectModal } = useConnectModal();
   const { apiUrl, quoteInterval } = useSettingsParams();
   const theme = useMemo(() => getTheme(partner?.id), [partner]);
+  const chainId = useNetwork().chain?.id;
+  const getUISettings = partner?.getUISettings;
+  const uiSettings = useMemo(() => getUISettings?.(), [getUISettings]);
+
   useEffect(() => {
     setWeb3Instance(new Web3(provider));
   }, [provider]);
   if (!partner) {
     return <Navigate to={`/${DEFAULT_PARTNER}`} />;
   }
-  
-  const { Component } = partner;
+
+  const { Component, id } = partner;
+
   return (
     <ThemeProvider theme={theme}>
       <Container $minHeight={height}>
@@ -57,23 +61,21 @@ function Wrapped() {
             <ConnectButton />
             <GasPrice />
           </StyledHeader>
-          <LiquidityHubProvider
-            uiSettings={{
-              buttonColor: theme.colors.button,
-            }}
-            provider={provider}
-            account={address}
-            partner={partner.id}
-            chainId={partner.chainId}
-            apiUrl={apiUrl}
-            quoteInterval={quoteInterval}
-          >
-            <SwapContainer>
-              <ProtectedContent>
-                <Component />
-              </ProtectedContent>
-            </SwapContainer>
-          </LiquidityHubProvider>
+          <SwapContainer>
+            <ProtectedContent>
+              <Component
+                connectedChainId={chainId}
+                provider={provider}
+                address={address}
+                apiUrl={apiUrl}
+                partner={id}
+                quoteInterval={quoteInterval}
+                partnerChainId={partner.chainId}
+                onConnect={openConnectModal}
+                uiSettings={uiSettings}
+              />
+            </ProtectedContent>
+          </SwapContainer>
         </Grid>
         <BlockNumber />
       </Container>
@@ -95,6 +97,7 @@ const ProtectedContent = ({ children }: { children: ReactNode }) => {
 
 const SwapContainer = styled.div`
   margin-top: 50px;
+  max-width: 500px;
 `;
 
 export const App = () => {
@@ -126,4 +129,5 @@ const Grid = styled.div`
   margin: 0 auto;
   width: 100%;
   padding: 20px;
+  align-items: center;
 `;
