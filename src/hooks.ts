@@ -32,7 +32,7 @@ export const useProvider = () => {
 };
 
 
-export const usePartner = () => {
+export const useDex = () => {
   const partner = useParams<{ partner?: string }>().partner;
 
   return useMemo(() => {
@@ -132,7 +132,7 @@ export const useGasPriceQuery = () => {
 
 export const useIsWrongNetwork = () => {
   const chainId = useNetwork().chain?.id;
-  const partner = usePartner();
+  const partner = useDex();
   return useMemo(() => {
     if (!partner) return false;
     return partner.chainId !== chainId;

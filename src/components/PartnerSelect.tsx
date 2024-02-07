@@ -5,7 +5,7 @@ import {
   DrawerContent,
   DrawerBody,
 } from "@chakra-ui/react";
-import { usePartner } from "../hooks";
+import { useDex } from "../hooks";
 import { FlexColumn, FlexRow } from "../styles";
 import styled from "styled-components";
 import { DappConfig } from "../type";
@@ -104,7 +104,7 @@ const StyleDrawerContent = styled(DrawerBody)`
 `;
 
 const Selected = () => {
-  const partner = usePartner();
+  const partner = useDex();
 
   return (
     <StyledSelected>

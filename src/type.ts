@@ -1,13 +1,11 @@
-import { FC } from "react";
-import { WidgetArgs, WidgetUISettings } from "@orbs-network/liquidity-hub-widget";
 
-export interface DappConfig {
-  name: string;
-  chainId: number;
-  chainName: string;
+import {  WidgetUISettings, Network } from "@orbs-network/liquidity-hub-widget";
+
+export interface DappConfig extends Network {
   logo: string;
-  Component: FC<WidgetArgs>;
-  getUISettings?: (darkMode?: boolean) => WidgetUISettings;
+  uiSettings?: () => WidgetUISettings;
+  name: string;
+  id: string;
 }
 
 export interface DappTheme {

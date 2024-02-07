@@ -11,7 +11,7 @@ import { ThemeProvider } from "styled-components";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import {
-  usePartner,
+  useDex,
   useProvider,
   useSettingsParams,
   useWindowResize,
@@ -22,6 +22,7 @@ import { FlexRow } from "./styles";
 import { getTheme } from "./theme";
 import { BlockNumber } from "./components/BlockNumber";
 import { usePersistedStore } from "./store";
+import { Widget } from "@orbs-network/liquidity-hub-widget";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -30,25 +31,24 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function Wrapped() {
-  const partner = usePartner();
+  const dex = useDex();
   const { height } = useWindowResize();
   const { address } = useAccount();
   const provider = useProvider();
   const { openConnectModal } = useConnectModal();
   const { apiUrl, quoteInterval } = useSettingsParams();
-  const theme = useMemo(() => getTheme(partner?.id), [partner]);
+  const theme = useMemo(() => getTheme(dex?.id), [dex]);
   const chainId = useNetwork().chain?.id;
-  const getUISettings = partner?.getUISettings;
-  const uiSettings = useMemo(() => getUISettings?.(), [getUISettings]);
+  const uiSettings = useMemo(() => dex?.uiSettings?.(), [dex]);
 
   useEffect(() => {
     setWeb3Instance(new Web3(provider));
   }, [provider]);
-  if (!partner) {
+
+  if (!dex) {
     return <Navigate to={`/${DEFAULT_PARTNER}`} />;
   }
 
-  const { Component, id } = partner;
 
   return (
     <ThemeProvider theme={theme}>
@@ -63,14 +63,14 @@ function Wrapped() {
           </StyledHeader>
           <SwapContainer>
             <ProtectedContent>
-              <Component
+              <Widget
                 connectedChainId={chainId}
                 provider={provider}
                 address={address}
                 apiUrl={apiUrl}
-                partner={id}
+                partner={dex.name}
                 quoteInterval={quoteInterval}
-                partnerChainId={partner.chainId}
+                partnerChainId={dex.chainId}
                 onConnect={openConnectModal}
                 uiSettings={uiSettings}
               />
