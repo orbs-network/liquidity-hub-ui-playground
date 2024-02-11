@@ -2286,10 +2286,10 @@
     styled-components "^6.1.3"
     zustand "^4.4.7"
 
-"@orbs-network/liquidity-hub-widget@^0.0.48":
-  version "0.0.48"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.48.tgz#9e7135cd6403e7f9089744d355cf1d6bbf4483a7"
-  integrity sha512-h+MMNkihBN/CmR/totkUoouzKYuplm03LJj8/rgt+IdSI+61r7k5haqWl2Kf2GuXkT/wKTmKklRLpw8HpQlAcA==
+"@orbs-network/liquidity-hub-widget@^0.0.50":
+  version "0.0.50"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.50.tgz#aa0ea569d7eaf6795256e486baa760557131d0ab"
+  integrity sha512-7myBTeAuhpnK0auquPPkBDd+2mK6dKsKJrQMRjwvNuxkIjES5kC89s+40bPFJgWUaYIzR67XboaarMif61XUcg==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
     "@orbs-network/liquidity-hub-lib" "^0.0.208"
