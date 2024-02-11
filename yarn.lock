@@ -2272,10 +2272,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.5.tgz#1eed23d4844c861a1835b5d33507c1017fa98de8"
   integrity sha512-ZK+W5mVhRppff9BE6YdR8CC52C8zAvsVAiWhEtQ5+oNxFE6h1WdeWo+FJSF8KKvtxxVYZ7MTP/5KoVpAU3aSWg==
 
-"@orbs-network/liquidity-hub-lib@^0.0.87":
-  version "0.0.87"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.87.tgz#c8b9d0c55a2d964301695e65f9ae7a73cc7dd350"
-  integrity sha512-iL3INKLtW0huxlS6UMnYW1y1u1lMRDfJrvyQlVlaGh+oMFu3/8slR7fleSGW+L8Z1Xo7454qOPKXMv+YhAtzYw==
+"@orbs-network/liquidity-hub-lib@^0.0.208":
+  version "0.0.208"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.208.tgz#3238a7fed5fb6fc6269187cd94a71812c21b9c67"
+  integrity sha512-I7uMNUjewM0fmSf9ooxKjt+7yBfqbiNw/lVvOBuvZWdkgHq55ALg65TkC25zli7u4hodwZ+4on0JZyguBMZdzg==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
     "@tanstack/react-query" "^5.14.6"
@@ -2286,13 +2286,13 @@
     styled-components "^6.1.3"
     zustand "^4.4.7"
 
-"@orbs-network/liquidity-hub-widget@^0.0.45":
-  version "0.0.45"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.45.tgz#2f919bfd2c95e776f06eef19656e9dacf27c992c"
-  integrity sha512-LAt2tAVjuaE1QYOjyXhLanJZTdXyYcGTELuVkZPz/fnG4DTMGjiSqsRgggqjnfSktjdGn6dom5JOKneQljKlxg==
+"@orbs-network/liquidity-hub-widget@^0.0.48":
+  version "0.0.48"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.48.tgz#9e7135cd6403e7f9089744d355cf1d6bbf4483a7"
+  integrity sha512-h+MMNkihBN/CmR/totkUoouzKYuplm03LJj8/rgt+IdSI+61r7k5haqWl2Kf2GuXkT/wKTmKklRLpw8HpQlAcA==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
-    "@orbs-network/liquidity-hub-lib" "^0.0.87"
+    "@orbs-network/liquidity-hub-lib" "^0.0.208"
     axios "^1.6.3"
     ethereum-multicall "^2.21.0"
     lodash "^4.17.21"
