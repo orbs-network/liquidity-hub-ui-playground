@@ -1,9 +1,9 @@
 
-import {  WidgetUISettings, Network } from "@orbs-network/liquidity-hub-widget";
+import {  WidgetConfig, Network } from "@orbs-network/liquidity-hub-widget";
 
 export interface DappConfig extends Network {
   logo: string;
-  uiSettings?: () => WidgetUISettings;
+  widgetConfig?: () => WidgetConfig;
   name: string;
   id: string;
 }

@@ -39,7 +39,7 @@ function Wrapped() {
   const { apiUrl, quoteInterval } = useSettingsParams();
   const theme = useMemo(() => getTheme(dex?.id), [dex]);
   const chainId = useNetwork().chain?.id;
-  const uiSettings = useMemo(() => dex?.uiSettings?.(), [dex]);
+  const widgetConfig = useMemo(() => dex?.widgetConfig?.(), [dex]);
 
   useEffect(() => {
     setWeb3Instance(new Web3(provider));
@@ -64,15 +64,15 @@ function Wrapped() {
           <SwapContainer>
             <ProtectedContent>
               <Widget
-                connectedChainId={chainId}
+                chainId={chainId}
                 provider={provider}
-                address={address}
+                account={address}
                 apiUrl={apiUrl}
                 partner={dex.name}
                 quoteInterval={quoteInterval}
                 partnerChainId={dex.chainId}
-                onConnect={openConnectModal}
-                uiSettings={uiSettings}
+                connectWallet={openConnectModal}
+                config={widgetConfig}
               />
             </ProtectedContent>
           </SwapContainer>
@@ -97,7 +97,7 @@ const ProtectedContent = ({ children }: { children: ReactNode }) => {
 
 const SwapContainer = styled.div`
   margin-top: 50px;
-  max-width: 500px;
+  width: 100%;
 `;
 
 export const App = () => {

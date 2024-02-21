@@ -2272,38 +2272,40 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.5.tgz#1eed23d4844c861a1835b5d33507c1017fa98de8"
   integrity sha512-ZK+W5mVhRppff9BE6YdR8CC52C8zAvsVAiWhEtQ5+oNxFE6h1WdeWo+FJSF8KKvtxxVYZ7MTP/5KoVpAU3aSWg==
 
-"@orbs-network/liquidity-hub-lib@^0.0.208":
-  version "0.0.208"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-lib/-/liquidity-hub-lib-0.0.208.tgz#3238a7fed5fb6fc6269187cd94a71812c21b9c67"
-  integrity sha512-I7uMNUjewM0fmSf9ooxKjt+7yBfqbiNw/lVvOBuvZWdkgHq55ALg65TkC25zli7u4hodwZ+4on0JZyguBMZdzg==
+"@orbs-network/liquidity-hub-ui@^0.0.92":
+  version "0.0.92"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-ui/-/liquidity-hub-ui-0.0.92.tgz#bde0e3a42bc2ff2b986f4c7af8f0dfd1b7a6f65f"
+  integrity sha512-8CVTxg+SpSsHoc7+6hJDnOUjx+QwycojVEO1uXQ3EfT0Cz1qpR7yEs9IRRyOqUhKXPY1DIAqFb85Z+S9djR1hg==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
-    "@tanstack/react-query" "^5.14.6"
-    bignumber.js "^9.1.2"
+    "@tanstack/react-query" "^5.21.4"
+    lodash "^4.17.21"
+    react "^18.2.0"
+    react-dom "^18.2.0"
     react-feather "^2.0.10"
     react-number-format "^5.3.1"
     reactjs-popup "^2.0.6"
-    styled-components "^6.1.3"
-    zustand "^4.4.7"
+    styled-components "^6.1.8"
+    zustand "^4.5.1"
 
-"@orbs-network/liquidity-hub-widget@^0.0.50":
-  version "0.0.50"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.50.tgz#aa0ea569d7eaf6795256e486baa760557131d0ab"
-  integrity sha512-7myBTeAuhpnK0auquPPkBDd+2mK6dKsKJrQMRjwvNuxkIjES5kC89s+40bPFJgWUaYIzR67XboaarMif61XUcg==
+"@orbs-network/liquidity-hub-widget@^0.0.89":
+  version "0.0.89"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-widget/-/liquidity-hub-widget-0.0.89.tgz#ab08d9a758125e0c3f8f7ae55f01861ff6158737"
+  integrity sha512-wjckgBUEUWT7oGFT+YsKrvi5sBYql+eISZqcKIHzDL0iIpLS+d2gjPivH9Y06FKiwksO2rRpX6CtNwJvc4gyOA==
   dependencies:
     "@defi.org/web3-candies" "^4.20.12"
-    "@orbs-network/liquidity-hub-lib" "^0.0.208"
+    "@orbs-network/liquidity-hub-ui" "^0.0.92"
+    "@tanstack/react-query" "^5.21.4"
     axios "^1.6.3"
     ethereum-multicall "^2.21.0"
     lodash "^4.17.21"
     react "^18.2.0"
-    react-animate-height "^3.2.3"
     react-dom "^18.2.0"
     react-feather "^2.0.10"
     react-number-format "^5.3.1"
-    react-virtualized-auto-sizer "^1.0.20"
-    react-window "^1.8.10"
-    web3-utils "^4.1.0"
+    reactjs-popup "^2.0.6"
+    styled-components "^6.1.8"
+    zustand "^4.5.1"
 
 "@parcel/watcher-android-arm64@2.3.0":
   version "2.3.0"
@@ -2955,10 +2957,10 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.36.1.tgz#79f8c1a539d47c83104210be2388813a7af2e524"
   integrity sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==
 
-"@tanstack/query-core@5.17.19":
-  version "5.17.19"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.17.19.tgz#212515ccc7a6b913afee6b71ce3e7df2c4d85f7d"
-  integrity sha512-Lzw8FUtnLCc9Jwz0sw9xOjZB+/mCCmJev38v2wHMUl/ioXNIhnNWeMxu0NKUjIhAd62IRB3eAtvxAGDJ55UkyA==
+"@tanstack/query-core@5.21.7":
+  version "5.21.7"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.21.7.tgz#c020574ea683a0738836549a686605f740438a7d"
+  integrity sha512-z0NSWFsM75esVmkxeuDWeyo9Wv4CZ/WsLMZgu1Zz164S6Oc/57NMia88dTu/d51wdVowMTAcDMQgRmiWmyPMxQ==
 
 "@tanstack/query-persist-client-core@4.36.1":
   version "4.36.1"
@@ -2989,12 +2991,12 @@
     "@tanstack/query-core" "4.36.1"
     use-sync-external-store "^1.2.0"
 
-"@tanstack/react-query@^5.14.6":
-  version "5.17.19"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.17.19.tgz#d6fc243faa469bb84952dd810faea47dabe389fc"
-  integrity sha512-qaQENB6/03Gj3dFZGvdmUoqeUGlGm7P1p0RmaR04Bf1Ib1T9lLGimcC9T3oCFbrx0b2ZF21ngjFZNjj9uPJMcg==
+"@tanstack/react-query@^5.21.4":
+  version "5.21.7"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.21.7.tgz#c49d4000f8564de76693baa5ec6d703a4fca4676"
+  integrity sha512-Op9nVL/L0Lg+aSPFSGbrymu6d3tzUoZ+FZ+rRIZpu5HkGasflqzhsXkL26Sa+MEwLyox7Q1erSFwNIRO3TYjXQ==
   dependencies:
-    "@tanstack/query-core" "5.17.19"
+    "@tanstack/query-core" "5.21.7"
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.9"
@@ -4286,7 +4288,7 @@ bigint-crypto-utils@^3.0.23:
   resolved "https://registry.yarnpkg.com/bigint-crypto-utils/-/bigint-crypto-utils-3.3.0.tgz#72ad00ae91062cf07f2b1def9594006c279c1d77"
   integrity sha512-jOTSb+drvEDxEq6OuUybOAv/xxoh3cuYRUIPyu8sSHQNKM303UQ2R1DAo45o1AkcIXw6fzbaFI1+xGGdaXs2lg==
 
-bignumber.js@*, bignumber.js@9.x, bignumber.js@^9.0.0, bignumber.js@^9.1.2:
+bignumber.js@*, bignumber.js@9.x, bignumber.js@^9.0.0:
   version "9.1.2"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.1.2.tgz#b7c4242259c008903b13707983b5f4bbd31eda0c"
   integrity sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==
@@ -7414,11 +7416,6 @@ media-typer@0.3.0:
   resolved "https://registry.yarnpkg.com/media-typer/-/media-typer-0.3.0.tgz#8710d7af0aa626f8fffa1ce00168545263255748"
   integrity sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==
 
-"memoize-one@>=3.1.1 <6":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-5.2.1.tgz#8337aa3c4335581839ec01c3d594090cebe8f00e"
-  integrity sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==
-
 memory-level@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/memory-level/-/memory-level-1.0.0.tgz#7323c3fd368f9af2f71c3cd76ba403a17ac41692"
@@ -8444,11 +8441,6 @@ raw-body@2.5.2, raw-body@^2.4.1:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-react-animate-height@^3.2.3:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/react-animate-height/-/react-animate-height-3.2.3.tgz#90929aadac1bd1851cb6a685acc105b50ccfda8c"
-  integrity sha512-R6DSvr7ud07oeCixScyvXWEMJY/Mt2+GyOWC1KMaRc69gOBw+SsCg4TJmrp4rKUM1hyd6p+YKw90brjPH93Y2A==
-
 react-clientside-effect@^1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/react-clientside-effect/-/react-clientside-effect-1.2.6.tgz#29f9b14e944a376b03fb650eed2a754dd128ea3a"
@@ -8558,19 +8550,6 @@ react-style-singleton@^2.2.1:
     get-nonce "^1.0.0"
     invariant "^2.2.4"
     tslib "^2.0.0"
-
-react-virtualized-auto-sizer@^1.0.20:
-  version "1.0.20"
-  resolved "https://registry.yarnpkg.com/react-virtualized-auto-sizer/-/react-virtualized-auto-sizer-1.0.20.tgz#d9a907253a7c221c52fa57dc775a6ef40c182645"
-  integrity sha512-OdIyHwj4S4wyhbKHOKM1wLSj/UDXm839Z3Cvfg2a9j+He6yDa6i5p0qQvEiCnyQlGO/HyfSnigQwuxvYalaAXA==
-
-react-window@^1.8.10:
-  version "1.8.10"
-  resolved "https://registry.yarnpkg.com/react-window/-/react-window-1.8.10.tgz#9e6b08548316814b443f7002b1cf8fd3a1bdde03"
-  integrity sha512-Y0Cx+dnU6NLa5/EvoHukUD0BklJ8qITCtVEPY1C/nL8wwoZ0b5aEw8Ff1dOVHw7fCzMt55XfJDd8S8W8LCaUCg==
-  dependencies:
-    "@babel/runtime" "^7.0.0"
-    memoize-one ">=3.1.1 <6"
 
 react@^18.2.0:
   version "18.2.0"
@@ -9278,7 +9257,7 @@ strip-json-comments@3.1.1, strip-json-comments@^3.1.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-3.1.1.tgz#31f1281b3832630434831c310c01cccda8cbe006"
   integrity sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==
 
-styled-components@^6.1.3:
+styled-components@^6.1.8:
   version "6.1.8"
   resolved "https://registry.yarnpkg.com/styled-components/-/styled-components-6.1.8.tgz#c109d36aeea52d8f049e12de2f3be39a6fc86201"
   integrity sha512-PQ6Dn+QxlWyEGCKDS71NGsXoVLKfE1c3vApkvDYS5KAK+V8fNWGhbSUEo9Gg2iaID2tjLXegEW3bZDUGpofRWw==
@@ -10501,9 +10480,9 @@ zustand@^4.3.1:
   dependencies:
     use-sync-external-store "1.2.0"
 
-zustand@^4.4.7:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.0.tgz#141354af56f91de378aa6c4b930032ab338f3ef0"
-  integrity sha512-zlVFqS5TQ21nwijjhJlx4f9iGrXSL0o/+Dpy4txAP22miJ8Ti6c1Ol1RLNN98BMib83lmDH/2KmLwaNXpjrO1A==
+zustand@^4.5.1:
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.1.tgz#2088956ee454759fb8b866ca335a2373e76736c5"
+  integrity sha512-XlauQmH64xXSC1qGYNv00ODaQ3B+tNPoy22jv2diYiP4eoDKr9LA+Bh5Bc3gplTrFdb6JVI+N4kc1DZ/tbtfPg==
   dependencies:
     use-sync-external-store "1.2.0"
