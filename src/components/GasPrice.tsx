@@ -5,7 +5,7 @@ import { FlexRow } from "../styles";
 import { Text } from "./Text";
 import { GasIcon } from "../assets/svg/gas";
 import { useAccount } from "wagmi";
-import { useFormatNumber } from "@orbs-network/liquidity-hub-widget";
+import { useFormatNumber } from "@orbs-network/liquidity-hub-ui-sdk";
 
 const useGasPriceUi = () => {
   const { data } = useGasPriceQuery();

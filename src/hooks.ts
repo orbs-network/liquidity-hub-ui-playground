@@ -7,9 +7,7 @@ import {
 } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useConfig, useNetwork } from "wagmi";
-import {
-  estimateGasPrice,
-} from "@defi.org/web3-candies";
+
 import {
   DEFAULT_API_URL,
   DEFAULT_QUOTE_INTERVAL,
@@ -21,6 +19,7 @@ import { NumberParam, StringParam, useQueryParams } from "use-query-params";
 import Web3 from "web3";
 import { partners } from "./partners-config";
 import _ from "lodash";
+import { estimateGasPrice } from "@orbs-network/liquidity-hub-ui-sdk";
 
 
 export const useProvider = () => {
@@ -121,10 +120,10 @@ export const useGasPriceQuery = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.GAS_PRICE, chainId],
     queryFn: () => {
-      return estimateGasPrice(undefined, undefined, web3);
+      return estimateGasPrice(web3!, chainId!);
     },
     refetchInterval: 15_000,
-    enabled: !!web3,
+    enabled: !!web3 && !!chainId,
   });
 };
 

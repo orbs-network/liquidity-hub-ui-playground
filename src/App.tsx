@@ -2,11 +2,9 @@
 import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { useAccount, useNetwork } from "wagmi";
 import { createGlobalStyle } from "styled-components";
-import { setWeb3Instance } from "@defi.org/web3-candies";
-import Web3 from "web3";
 import { ThemeProvider } from "styled-components";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
@@ -22,13 +20,21 @@ import { FlexRow } from "./styles";
 import { getTheme } from "./theme";
 import { BlockNumber } from "./components/BlockNumber";
 import { usePersistedStore } from "./store";
-import { Widget } from "@orbs-network/liquidity-hub-widget";
+import { supportedChains, Widget } from "@orbs-network/liquidity-hub-ui-sdk";
+import _ from "lodash";
 
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${({ theme }) => theme.fonts.main}!important;
   }
 `;
+
+
+const _supportedChains = _.map(supportedChains, (chain) => {
+  return chain.chainId;
+}
+);
+
 
 function Wrapped() {
   const dex = useDex();
@@ -40,10 +46,6 @@ function Wrapped() {
   const theme = useMemo(() => getTheme(dex?.id), [dex]);
   const chainId = useNetwork().chain?.id;
   const widgetConfig = useMemo(() => dex?.widgetConfig?.(), [dex]);
-
-  useEffect(() => {
-    setWeb3Instance(new Web3(provider));
-  }, [provider]);
 
   if (!dex) {
     return <Navigate to={`/${DEFAULT_PARTNER}`} />;
@@ -70,9 +72,9 @@ function Wrapped() {
                 apiUrl={apiUrl}
                 partner={dex.name}
                 quoteInterval={quoteInterval}
-                partnerChainId={dex.chainId}
+                supportedChains={_supportedChains}
                 connectWallet={openConnectModal}
-                config={widgetConfig}
+                UIconfig={widgetConfig}
               />
             </ProtectedContent>
           </SwapContainer>
