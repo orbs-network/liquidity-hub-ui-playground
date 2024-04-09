@@ -38,7 +38,7 @@ function Wrapped() {
   const provider = useProvider();
   const { openConnectModal } = useConnectModal();
   const { quoteInterval,apiUrl, slippage } = useSettingsParams();
-  const theme = useMemo(() => getTheme(dex?.id), [dex]);
+  const theme = useMemo(() => getTheme(), [dex]);
   const chainId = useNetwork().chain?.id;
   const widgetConfig = useMemo(() => dex?.widgetConfig?.(), [dex]);
 

@@ -19,32 +19,25 @@ export const quickswap: DappTheme = {
   },
 };
 
-const thena: DappTheme = {
-  colors: {
-    primary: "#B401DC",
-    pageBackground: "#070331",
-    modalBackground: "rgb(16 22 69)",
-    textMain: "white",
-    textSecondary: "white",
-    button: "#BD02D3",
-    buttonDisabled: "rgb(255 255 255/0.33 )",
-    buttonText: "white",
-    buttonDisabledText: "rgb(9 3 51/1)",
-    card: "rgb(9 3 51)",
-    borderMain: "rgba(255, 255, 255, 0.2)",
-  },
-  fonts: {
-    main: "Figtree",
-  },
-};
+// const thena: DappTheme = {
+//   colors: {
+//     primary: "#B401DC",
+//     pageBackground: "#070331",
+//     modalBackground: "rgb(16 22 69)",
+//     textMain: "white",
+//     textSecondary: "white",
+//     button: "#BD02D3",
+//     buttonDisabled: "rgb(255 255 255/0.33 )",
+//     buttonText: "white",
+//     buttonDisabledText: "rgb(9 3 51/1)",
+//     card: "rgb(9 3 51)",
+//     borderMain: "rgba(255, 255, 255, 0.2)",
+//   },
+//   fonts: {
+//     main: "Figtree",
+//   },
+// };
 
-export const getTheme = (partner?: string) => {
-  switch (partner) {
-    case "quickswap":
-      return quickswap;
-    case "thena":
-      return thena;
-    default:
-      return quickswap;
-  }
+export const getTheme = () => {
+  return quickswap;
 };
