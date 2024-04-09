@@ -6,6 +6,8 @@ export interface DappConfig extends Network {
   widgetConfig?: () => WidgetConfig;
   name: string;
   id: string;
+  initialFromToken?: string;
+  initialToToken?: string;
 }
 
 export interface DappTheme {

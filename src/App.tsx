@@ -20,8 +20,9 @@ import { FlexRow } from "./styles";
 import { getTheme } from "./theme";
 import { BlockNumber } from "./components/BlockNumber";
 import { usePersistedStore } from "./store";
-import { supportedChains, Widget } from "@orbs-network/liquidity-hub-ui-sdk";
+import { Widget } from "@orbs-network/liquidity-hub-ui-sdk";
 import _ from "lodash";
+import { defaultWidgetConfig } from "./partners-config";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -30,19 +31,13 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 
-const _supportedChains = _.map(supportedChains, (chain) => {
-  return chain.chainId;
-}
-);
-
-
 function Wrapped() {
   const dex = useDex();
   const { height } = useWindowResize();
   const { address } = useAccount();
   const provider = useProvider();
   const { openConnectModal } = useConnectModal();
-  const { apiUrl, quoteInterval } = useSettingsParams();
+  const { quoteInterval,apiUrl, slippage } = useSettingsParams();
   const theme = useMemo(() => getTheme(dex?.id), [dex]);
   const chainId = useNetwork().chain?.id;
   const widgetConfig = useMemo(() => dex?.widgetConfig?.(), [dex]);
@@ -70,11 +65,14 @@ function Wrapped() {
                 provider={provider}
                 account={address}
                 apiUrl={apiUrl}
+                slippage={slippage}
                 partner={dex.name}
+                initialFromToken={dex.initialFromToken}
+                initialToToken={dex.initialToToken}
                 quoteInterval={quoteInterval}
-                supportedChains={_supportedChains}
+                supportedChains={[dex.chainId]}
                 connectWallet={openConnectModal}
-                UIconfig={widgetConfig}
+                UIconfig={widgetConfig || defaultWidgetConfig}
               />
             </ProtectedContent>
           </SwapContainer>

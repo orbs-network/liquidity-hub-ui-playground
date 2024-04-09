@@ -1,5 +1,21 @@
-import { supportedChains, WidgetConfig } from "@orbs-network/liquidity-hub-ui-sdk";
+import {
+  supportedChains,
+  WidgetConfig,
+} from "@orbs-network/liquidity-hub-ui-sdk";
 import { DappConfig } from "../type";
+
+export const defaultWidgetConfig: WidgetConfig = {
+  styles: {
+    maxWidth: 540,
+  },
+  modalStyles: {
+    containerStyles: {
+      backgroundColor: "#12131a",
+      border: "1px solid #3e4252",
+      maxWidth: 540,
+    },
+  },
+};
 
 const thenaWidgetConfig = (): WidgetConfig => {
   return {
@@ -78,11 +94,10 @@ const thenaWidgetConfig = (): WidgetConfig => {
     modalStyles: {
       containerStyles: {
         maxWidth: 540,
-      }
-    }
+      },
+    },
   };
 };
-
 
 const quickswapWidgetConfig = (): WidgetConfig => {
   return {
@@ -104,13 +119,12 @@ const quickswapWidgetConfig = (): WidgetConfig => {
           },
           svg: {
             color: "#c7cad9",
-          }
+          },
         },
       },
     },
   };
 };
-
 
 const baseWidgetConfig = (): WidgetConfig => {
   return {
@@ -120,9 +134,8 @@ const baseWidgetConfig = (): WidgetConfig => {
     modalStyles: {
       containerStyles: {
         maxWidth: 540,
-      }
-    }
-
+      },
+    },
   };
 };
 
@@ -130,28 +143,44 @@ export const partners: { [key: string]: DappConfig } = {
   quickswap: {
     ...supportedChains.polygon,
     name: "QuickSwap",
-    id: "quickswap",
+    id: "quickswap-playground",
     logo: "https://s2.coinmarketcap.com/static/img/coins/64x64/8206.png",
     widgetConfig: quickswapWidgetConfig,
+    initialFromToken: "USDC",
+    initialToToken: "WMATIC",
   },
   thena: {
     ...supportedChains.bsc,
     name: "Thena",
-    id: "thena",
+    id: "thena-playground",
     logo: "https://www.gitbook.com/cdn-cgi/image/width=40,dpr=2,height=40,fit=contain,format=auto/https%3A%2F%2F2770290301-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252Fp4Ew3qUZPqMSVg5hJI12%252Ficon%252FIfdx379foqQ3kMzwzmSx%252FTHE.png%3Falt%3Dmedia%26token%3D67208295-11aa-4faa-9c85-117b381682f3",
     widgetConfig: thenaWidgetConfig,
+    initialFromToken: "USDC",
+    initialToToken: "WBNB",
   },
   zkevm: {
     name: "Polygon zkEVM",
-    id: "zkevm",
-    logo: "https://quickswap.exchange/zkevm.svg",
+    id: "polygon-zkevm-playground",
+    logo: "https://s3.coinmarketcap.com/static-gravity/image/b8db9a2ac5004c1685a39728cdf4e100.png",
     ...supportedChains.zkEvm,
+    initialFromToken: "USDC",
+    initialToToken: "ETH",
   },
-  base: {
-    name: "Base",
-    id: "base",
-    logo: "",
+  baseswap: {
+    name: "BaseSwap",
+    id: "baseswap-playground",
+    logo: "https://avatars.githubusercontent.com/u/108554348?s=200&v=4",
     ...supportedChains.base,
     widgetConfig: baseWidgetConfig,
-  }
+    initialFromToken: "USDC",
+    initialToToken: "ETH",
+  },
+  spookyswap: {
+    name: "SpookySwap",
+    id: "spookyswap-playground",
+    logo: "https://s2.coinmarketcap.com/static/img/coins/200x200/9608.png",
+    ...supportedChains.fanton,
+    initialFromToken: "USDC",
+    initialToToken: "ETH",
+  },
 };
