@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useState,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useConfig, useNetwork } from "wagmi";
+import { useAccount, useConfig, useNetwork } from "wagmi";
 
 import {
   DEFAULT_API_URL,
@@ -21,13 +22,27 @@ import { partners } from "./partners-config";
 import _ from "lodash";
 import { estimateGasPrice } from "@orbs-network/liquidity-hub-ui-sdk";
 
-
 export const useProvider = () => {
   const { data } = useConfig();
+  const { address, connector } = useAccount();
 
-  return useMemo(() => {
-    return (data as any)?.provider;
-  }, [data]);
+  const [provider, setProvider] = useState<any>(undefined);
+
+  const setProviderFromConnector = useCallback(async () => {    
+    const res = await connector?.getProvider();
+    setProvider(res);
+  }, [setProvider, connector]);
+
+  useEffect(() => {
+    const provider = (data as any)?.provider;
+    if (provider) {
+      setProvider(provider);
+    } else {
+      setProviderFromConnector();
+    }
+  }, [address, setProviderFromConnector, data]);
+
+  return provider;
 };
 
 
