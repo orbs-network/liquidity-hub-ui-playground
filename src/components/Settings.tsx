@@ -33,6 +33,7 @@ interface ContextArgs {
 export const Settings = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+
   const params = useSettingsParams();
   const [data, setData] = useState({
     apiUrl: params.apiUrl || DEFAULT_API_URL,

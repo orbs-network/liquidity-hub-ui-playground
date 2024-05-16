@@ -1918,10 +1918,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@orbs-network/liquidity-hub-ui-sdk@^0.0.92":
-  version "0.0.92"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-ui-sdk/-/liquidity-hub-ui-sdk-0.0.92.tgz#aa59745853b932012804a66f910f4cd60de1b082"
-  integrity sha512-n1sArUjR8tAJcfuB9ZuvZv9I39AzMJRuFXk5D+y/FB6bM5qp6219mJPoMKSX1OjABmmCQEEpb+l38ztjjEgzLg==
+"@orbs-network/liquidity-hub-ui-sdk@^0.0.97":
+  version "0.0.97"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-ui-sdk/-/liquidity-hub-ui-sdk-0.0.97.tgz#dc243d56ab70c148d6058a3581c19940db7a86ae"
+  integrity sha512-V7d0sSzo/zh+euG3kXL2CdWmcL5tqqcAu2EqBI8PC/0Lm3MCGW+/rqYwc9GJAom4E/E5qidyD/3Xb6ERCkFnGA==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/hash" "^5.7.0"

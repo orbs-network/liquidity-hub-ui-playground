@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { RainbowKitProvider , darkTheme, connectorsForWallets} from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { polygon, bsc, polygonZkEvm, base, fantom } from "wagmi/chains";
+import { polygon, bsc, polygonZkEvm, base, fantom, linea } from "wagmi/chains";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -23,7 +23,7 @@ const projectId = "c00c0bdae3ede8cf0073f900e6d17f09";
 const APP_NAME = "Liquidity hub playground";
 
 const { chains, publicClient } = configureChains(
-  [polygon, bsc, polygonZkEvm, base, fantom],
+  [polygon, bsc, polygonZkEvm, base, fantom, linea],
   [infuraProvider({ apiKey: INFURA_KEY }), publicProvider()]
 );
 

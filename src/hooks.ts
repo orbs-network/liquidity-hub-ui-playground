@@ -103,6 +103,8 @@ export function useDebounce(value: string, delay: number) {
 
 
 export const useSettingsParams = () => {
+  const dex = useDex();
+
   const [query, setQuery] = useQueryParams(
     {
       apiUrl: StringParam,
@@ -113,7 +115,7 @@ export const useSettingsParams = () => {
   );
 
   return {
-    apiUrl: (query.apiUrl as string | undefined) || DEFAULT_API_URL,
+    apiUrl: (query.apiUrl as string | undefined) || dex?.apiUrl || DEFAULT_API_URL,
     slippage: (query.slippage as number | undefined) || DEFAULT_SLIPPAGE,
     quoteInterval:
       (query.quoteInterval as number | undefined) || DEFAULT_QUOTE_INTERVAL,

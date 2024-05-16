@@ -59,4 +59,13 @@ export const partners: { [key: string]: DappConfig } = {
     initialFromToken: "USDC",
     initialToToken: "ETH",
   },
+  lynex: {
+    id: "linea-playground",
+    ...supportedChains.linea,
+    logo: "https://s2.coinmarketcap.com/static/img/coins/128x128/27657.png",
+
+    initialFromToken: "USDC",
+    initialToToken: "ETH",
+    name: "Linea",
+  },
 };
