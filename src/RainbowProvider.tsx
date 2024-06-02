@@ -5,7 +5,7 @@ import { polygon, bsc, polygonZkEvm, base, fantom, linea } from "wagmi/chains";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
 import "@rainbow-me/rainbowkit/styles.css";
-import "reactjs-popup/dist/index.css";
+
 import {
   braveWallet,
   coinbaseWallet,

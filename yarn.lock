@@ -1918,10 +1918,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@orbs-network/liquidity-hub-ui-sdk@^0.0.97":
-  version "0.0.97"
-  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-ui-sdk/-/liquidity-hub-ui-sdk-0.0.97.tgz#dc243d56ab70c148d6058a3581c19940db7a86ae"
-  integrity sha512-V7d0sSzo/zh+euG3kXL2CdWmcL5tqqcAu2EqBI8PC/0Lm3MCGW+/rqYwc9GJAom4E/E5qidyD/3Xb6ERCkFnGA==
+"@orbs-network/liquidity-hub-ui-sdk@^0.0.112":
+  version "0.0.112"
+  resolved "https://registry.yarnpkg.com/@orbs-network/liquidity-hub-ui-sdk/-/liquidity-hub-ui-sdk-0.0.112.tgz#e51cf30612358bcb9a15e49fdec8ee1dec8cfafc"
+  integrity sha512-3YRG7aRYwhHWUwlv/wtgN/sCRtMi0LwIyf8yY9x8rIhw0NeTMTrF2/0OWzU5rhFUhMjo05oa7FsKSHonY8KW8g==
   dependencies:
     "@ethersproject/abstract-signer" "^5.7.0"
     "@ethersproject/hash" "^5.7.0"
@@ -1929,13 +1929,10 @@
     bignumber.js "^9.1.2"
     ethereum-multicall "^2.23.0"
     lodash "^4.17.21"
-    react "^18.2.0"
-    react-dom "^18.2.0"
     react-feather "^2.0.10"
     react-number-format "^5.3.1"
     react-virtualized-auto-sizer "^1.0.24"
     react-window "^1.8.10"
-    reactjs-popup "^2.0.6"
     styled-components "^6.1.8"
     web3 "1.x"
     zustand "^4.5.1"

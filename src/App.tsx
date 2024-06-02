@@ -23,6 +23,7 @@ import { usePersistedStore } from "./store";
 import { Widget } from "@orbs-network/liquidity-hub-ui-sdk";
 import _ from "lodash";
 import { defaultWidgetConfig } from "./partners-config";
+import { Modal } from "./components/Modal";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -73,6 +74,7 @@ function Wrapped() {
                 supportedChains={[dex.chainId]}
                 connectWallet={openConnectModal}
                 UIconfig={widgetConfig || defaultWidgetConfig}
+                Modal={Modal}
               />
             </ProtectedContent>
           </SwapContainer>

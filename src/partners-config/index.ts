@@ -8,13 +8,6 @@ export const defaultWidgetConfig: WidgetConfig = {
   styles: {
     maxWidth: 540,
   },
-  modalStyles: {
-    containerStyles: {
-      backgroundColor: "#12131a",
-      border: "1px solid #3e4252",
-      maxWidth: 540,
-    },
-  },
 };
 
 
