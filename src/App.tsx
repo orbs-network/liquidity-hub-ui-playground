@@ -66,11 +66,13 @@ function Wrapped() {
                 provider={provider}
                 account={address}
                 apiUrl={apiUrl}
-                slippage={slippage}
                 partner={dex.name}
                 initialFromToken={dex.initialFromToken}
                 initialToToken={dex.initialToToken}
-                quoteInterval={quoteInterval}
+                quote = {{
+                  refetchInterval: quoteInterval,
+                }}
+                slippage={slippage}
                 supportedChains={[dex.chainId]}
                 connectWallet={openConnectModal}
                 UIconfig={widgetConfig || defaultWidgetConfig}
