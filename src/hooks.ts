@@ -19,7 +19,7 @@ import { partners } from "./partners-config";
 import _ from "lodash";
 import Web3 from "web3";
 export const useProvider = () => {
-  const { connector, address , isConnected} = useAccount();
+  const { connector, address, isConnected, isConnecting } = useAccount();
 
   const [provider, setProvider] = useState<any>(undefined);
 
@@ -28,11 +28,11 @@ export const useProvider = () => {
       const res = await connector?.getProvider();
       setProvider(res);
     } catch (error) {}
-  }, [setProvider, connector,isConnected]);
+  }, [setProvider, connector, isConnected, isConnecting, address]);
 
   useEffect(() => {
     setProviderFromConnector();
-  }, [address, setProviderFromConnector]);
+  }, [setProviderFromConnector]);
 
   return provider;
 };
@@ -57,7 +57,7 @@ export const useDex = () => {
     if (!partner) return undefined;
     const config = partners[partner];
     if (!config) return undefined;
-    return config
+    return config;
   }, [partner]);
 };
 export const useWindowResize = () => {
