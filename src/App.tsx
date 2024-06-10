@@ -3,12 +3,13 @@ import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import { ReactNode, useMemo } from "react";
-import { useAccount, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { createGlobalStyle } from "styled-components";
 import { ThemeProvider } from "styled-components";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
 import {
+  useChainId,
   useDex,
   useProvider,
   useSettingsParams,
@@ -24,29 +25,28 @@ import { Widget } from "@orbs-network/liquidity-hub-ui-sdk";
 import _ from "lodash";
 import { defaultWidgetConfig } from "./partners-config";
 import { Modal } from "./components/Modal";
-
 const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${({ theme }) => theme.fonts.main}!important;
   }
 `;
 
-
 function Wrapped() {
   const dex = useDex();
   const { height } = useWindowResize();
   const { address } = useAccount();
   const provider = useProvider();
+  const chainId = useChainId();
+
   const { openConnectModal } = useConnectModal();
-  const { quoteInterval,apiUrl, slippage } = useSettingsParams();
+  const { quoteInterval, apiUrl, slippage } = useSettingsParams();
   const theme = useMemo(() => getTheme(), [dex]);
-  const chainId = useNetwork().chain?.id;
+
   const widgetConfig = useMemo(() => dex?.widgetConfig?.(), [dex]);
 
   if (!dex) {
     return <Navigate to={`/${DEFAULT_PARTNER}`} />;
   }
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -66,14 +66,14 @@ function Wrapped() {
                 provider={provider}
                 account={address}
                 apiUrl={apiUrl}
-                partner={dex.name}
+                partner="playground"
                 initialFromToken={dex.initialFromToken}
                 initialToToken={dex.initialToToken}
-                quote = {{
+                quote={{
                   refetchInterval: quoteInterval,
                 }}
                 slippage={slippage}
-                supportedChains={[dex.chainId]}
+                supportedChains={[dex.id]}
                 connectWallet={openConnectModal}
                 UIconfig={widgetConfig || defaultWidgetConfig}
                 Modal={Modal}
@@ -81,11 +81,22 @@ function Wrapped() {
             </ProtectedContent>
           </SwapContainer>
         </Grid>
-        <BlockNumber />
+        <BlockWrapper supportedChains={[dex.id]} />
       </Container>
     </ThemeProvider>
   );
 }
+
+const BlockWrapper = ({ supportedChains }: { supportedChains: number[] }) => {
+  const chainId = useChainId();
+  const isValidChain = useMemo(() => {
+    return supportedChains.includes(chainId);
+  }, [chainId, supportedChains]);
+
+  if (!isValidChain) return null;
+
+  return <BlockNumber />;
+};
 
 const ProtectedContent = ({ children }: { children: ReactNode }) => {
   const { password } = usePersistedStore((it) => ({

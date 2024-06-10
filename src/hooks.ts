@@ -6,45 +6,49 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useAccount, useConfig, useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 
 import {
   DEFAULT_API_URL,
   DEFAULT_QUOTE_INTERVAL,
   DEFAULT_SLIPPAGE,
-  QUERY_KEYS,
 } from "./consts";
 import { useParams } from "react-router-dom";
 import { NumberParam, StringParam, useQueryParams } from "use-query-params";
-import Web3 from "web3";
 import { partners } from "./partners-config";
 import _ from "lodash";
-import { estimateGasPrice } from "@orbs-network/liquidity-hub-ui-sdk";
-
+import Web3 from "web3";
 export const useProvider = () => {
-  const { data } = useConfig();
-  const { address, connector } = useAccount();
+  const { connector, address , isConnected} = useAccount();
 
   const [provider, setProvider] = useState<any>(undefined);
 
-  const setProviderFromConnector = useCallback(async () => {    
-    const res = await connector?.getProvider();
-    setProvider(res);
-  }, [setProvider, connector]);
+  const setProviderFromConnector = useCallback(async () => {
+    try {
+      const res = await connector?.getProvider();
+      setProvider(res);
+    } catch (error) {}
+  }, [setProvider, connector,isConnected]);
 
   useEffect(() => {
-    const provider = (data as any)?.provider;
-    if (provider) {
-      setProvider(provider);
-    } else {
-      setProviderFromConnector();
-    }
-  }, [address, setProviderFromConnector, data]);
+    setProviderFromConnector();
+  }, [address, setProviderFromConnector]);
 
   return provider;
 };
 
+export const useWeb3 = () => {
+  const provider = useProvider();
+  return useMemo(() => {
+    if (provider) return new Web3(provider);
+  }, [provider]);
+};
+
+export const useChainId = () => {
+  const provider = useProvider();
+
+  return provider?.chainId && Web3.utils.hexToNumber(provider.chainId);
+};
 
 export const useDex = () => {
   const partner = useParams<{ partner?: string }>().partner;
@@ -53,10 +57,7 @@ export const useDex = () => {
     if (!partner) return undefined;
     const config = partners[partner];
     if (!config) return undefined;
-    return {
-      ...config,
-      id: partner,
-    };
+    return config
   }, [partner]);
 };
 export const useWindowResize = () => {
@@ -100,8 +101,6 @@ export function useDebounce(value: string, delay: number) {
   return debouncedValue;
 }
 
-
-
 export const useSettingsParams = () => {
   const dex = useDex();
 
@@ -115,42 +114,11 @@ export const useSettingsParams = () => {
   );
 
   return {
-    apiUrl: (query.apiUrl as string | undefined) || dex?.apiUrl || DEFAULT_API_URL,
+    apiUrl:
+      (query.apiUrl as string | undefined) || dex?.apiUrl || DEFAULT_API_URL,
     slippage: (query.slippage as number | undefined) || DEFAULT_SLIPPAGE,
     quoteInterval:
       (query.quoteInterval as number | undefined) || DEFAULT_QUOTE_INTERVAL,
     setSettings: setQuery,
   };
 };
-
-
-const useWeb3 = () => {
-  const provider = useProvider();
-  return useMemo(() => {
-    if (provider) return new Web3(provider);
-  }, [provider]);
-};
-
-export const useGasPriceQuery = () => {
-  const chainId = useNetwork().chain?.id;
-  const web3 = useWeb3();
-  return useQuery({
-    queryKey: [QUERY_KEYS.GAS_PRICE, chainId],
-    queryFn: () => {
-      return estimateGasPrice(web3!, chainId!);
-    },
-    refetchInterval: 15_000,
-    enabled: !!web3 && !!chainId,
-  });
-};
-
-
-
-export const useIsWrongNetwork = () => {
-  const chainId = useNetwork().chain?.id;
-  const partner = useDex();
-  return useMemo(() => {
-    if (!partner) return false;
-    return partner.chainId !== chainId;
-  }, [chainId, partner]);
-}

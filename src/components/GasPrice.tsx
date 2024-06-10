@@ -1,14 +1,30 @@
 import { useMemo } from "react";
-import { useGasPriceQuery } from "../hooks";
 import styled from "styled-components";
 import { FlexRow } from "../styles";
 import { Text } from "./Text";
 import { GasIcon } from "../assets/svg/gas";
 import { useAccount } from "wagmi";
-import { useFormatNumber } from "@orbs-network/liquidity-hub-ui-sdk";
+import { useFormatNumber, estimateGasPrice } from "@orbs-network/liquidity-hub-ui-sdk";
+import { QUERY_KEYS } from "../consts";
+import { useChainId, useWeb3 } from "../hooks";
+import { useQuery } from "@tanstack/react-query";
+
+export const useGasPriceQuery = () => {
+  const chainId = useChainId()
+  const web3 = useWeb3();
+  return useQuery({
+    queryKey: [QUERY_KEYS.GAS_PRICE, chainId],
+    queryFn: () => {
+      return estimateGasPrice(web3!, chainId!);
+    },
+    refetchInterval: 15_000,
+    enabled: !!web3 && !!chainId,
+  });
+};
+
 
 const useGasPriceUi = () => {
-  const { data } = useGasPriceQuery();
+  const { data } = useGasPriceQuery()
 
   const price = useMemo(() => {
     if (!data) return undefined;

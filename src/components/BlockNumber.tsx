@@ -1,8 +1,9 @@
-import { useBlockNumber, useNetwork } from "wagmi";
+import { useBlockNumber } from "wagmi";
 import styled from "styled-components";
 import { Text } from "./Text";
+import { useChainId } from "../hooks";
 export function BlockNumber() {
-  const chainId = useNetwork().chain?.id;
+  const chainId = useChainId()
   
   const { data: block } = useBlockNumber({ chainId, watch: true });
   return (
